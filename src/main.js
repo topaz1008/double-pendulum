@@ -3,7 +3,7 @@
 
     var VIEW_WIDTH = 1024,
         VIEW_HEIGHT = 768,
-        FRAMES_PER_SECOND = 60,
+        FPS = 60,
         HALF_WIDTH = VIEW_WIDTH / 2,
         HALF_HEIGHT = VIEW_HEIGHT / 2;
 
@@ -15,9 +15,12 @@
 
     // Initial conditions [theta1, theta2, omega1, omega2]
     var y0 = [3 * Math.PI / 4, Math.PI, 0, 0];
-    var pendulum = new Pendulum(y0, context, FRAMES_PER_SECOND);
+    var pendulum = new Pendulum(y0, context, FPS);
 
-    setInterval(update, 1000 / FRAMES_PER_SECOND);
+    // var y0_2 = [3 * Math.PI / 4 + 0.0001, Math.PI, 0, 0];
+    // var pendulum2 = new Pendulum(y0_2, context, FPS);
+
+    setInterval(update, 1000 / FPS);
 
     /**
      * Update loop
@@ -29,6 +32,9 @@
 
         pendulum.draw();
         pendulum.step();
+
+        // pendulum2.draw();
+        // pendulum2.step();
     }
 
 })(document);

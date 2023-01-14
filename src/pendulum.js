@@ -5,6 +5,8 @@ var THETA_1 = 0,
     OMEGA_1 = 2,
     OMEGA_2 = 3;
 
+Pendulum.GRAVITY = 9.81;
+
 Pendulum.TIME_SCALE = 1 / 2;
 Pendulum.MAX_PATH_POINTS = 250;
 Pendulum.PATH_SIMPLIFY = 2;
@@ -32,12 +34,11 @@ function Pendulum(y0, context, fps) {
     this.solver = new NDSolve(this.y, equations, this.stepSize);
 
     this.time = 0;
-    this.gravity = 9.8;
 
     // How many integration steps to take in one call to step() (one frame).
     // Since the solver integrates in real-time and uses a fixed step size.
     // The speed of the simulation is tied to that step size.
-    // this factor allows a control over time scaling according to the fps and an arbitrary time scale constant.
+    // this factor allows a control over time scaling according to the fps and an arbitrary timescale constant.
     this.timeScaleIterations = (1 / this.stepSize) / fps * Pendulum.TIME_SCALE;
 
     this.origin = { x: 0, y: 0 };
@@ -196,7 +197,7 @@ Pendulum.prototype.position2 = function () {
 Pendulum.prototype.equations = function (t, y, dydt) {
     var m1 = this.m1, m2 = this.m2,
         l1 = this.l1, l2 = this.l2,
-        g = this.gravity;
+        g = Pendulum.GRAVITY;
 
     var dTheta = y[THETA_2] - y[THETA_1]; // The change in angle
 

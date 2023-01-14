@@ -1,0 +1,16 @@
+{
+    "name": "double-pendulum",
+    "version": "1.0.0",
+    "description": "",
+    "type": "module",
+    "license": "MIT",
+    "author": {
+        "name": "Topaz Bar",
+        "email": "topaz1008@gmail.com"
+    },
+    "keywords": [],
+    "dependencies": {},
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 0"
+    }
+}

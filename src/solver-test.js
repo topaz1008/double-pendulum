@@ -15,7 +15,7 @@
     // Integration settings
     var STEP_SIZE = 1 / 100,
         T_START = 0,
-        T_END = 75;
+        T_END = 100;
 
     // Plot settings
     var SCALE = 15,
@@ -119,10 +119,8 @@
 
     for (t = T_START; t < T_END; t += STEP_SIZE) {
         // Normal plot
-//        xValues.push(t);
-//        yValues.push(y[0]);
-//        yValues.push(y[1]);
-//        yValues.push(y[2]);
+       // xValues.push(t);
+       // yValues.push(y[0]);
 
         // Phase plot
         xValues.push(y[0]);
@@ -150,7 +148,6 @@
      * @param [centerOrigin] {Boolean}
      */
     function transform(centerOrigin) {
-//        context.setTransform(1, 0, 0, 1, 0, 0);
 
         if (centerOrigin === true) {
             context.translate(HALF_WIDTH, HALF_HEIGHT); // Center the origin
