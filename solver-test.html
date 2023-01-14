@@ -7,15 +7,30 @@
     <title></title>
     <style>
         body { margin: 0; background: #3e3e3e; color: #fff; }
-        #main { background: #000; margin: 30px auto auto; display: block; }
+        canvas { background: #000; margin: 30px auto auto; display: block; float: right; }
+        button { width: 200px; height: 50px; }
     </style>
 </head>
 <body>
 
-<canvas id="main"></canvas>
+<div>
+    <button onclick="togglePlotMode(event)">Toggle Plot Mode</button>
 
-<script src="src/ndsolve.js"></script>
-<script src="src/solver-test.js"></script>
+    <p>Problems:</p>
+    <button value="simple" onclick="changeProblem(event)">Simple</button>
+    <button value="ballistic" onclick="changeProblem(event)">Ballistic</button>
+    <button value="ODE1" onclick="changeProblem(event)">Random ODE</button>
+    <button value="vanderpol" onclick="changeProblem(event)">Van der Pol oscillator</button>
+    <button value="singlependulum" onclick="changeProblem(event)">Single pendulum</button>
+    <button value="lorenz" onclick="changeProblem(event)">Lorenz attractor</button>
+    <button value="rossler" onclick="changeProblem(event)">Rossler attractor</button>
+</div>
+
+<div>
+    Lorem ipsum.
+</div>
+
+<script src="src/solver-test/solver-test.js" type="module"></script>
 
 </body>
 </html>

@@ -1,26 +1,26 @@
-(function (document) {
-    'use strict';
+import { DoublePendulum } from './double-pendulum.js';
 
-    var VIEW_WIDTH = 1024,
+(function (document) {
+    const VIEW_WIDTH = 1024,
         VIEW_HEIGHT = 768,
         FPS = 60,
         HALF_WIDTH = VIEW_WIDTH / 2,
         HALF_HEIGHT = VIEW_HEIGHT / 2;
 
-    var canvas = document.getElementById('main'),
+    const canvas = document.getElementById('main'),
         context = canvas.getContext('2d');
 
     canvas.width = VIEW_WIDTH;
     canvas.height = VIEW_HEIGHT;
 
     // Initial conditions [theta1, theta2, omega1, omega2]
-    var y0 = [3 * Math.PI / 4, Math.PI, 0, 0];
-    var pendulum = new Pendulum(y0, context, FPS);
+    const y0 = [3 * Math.PI / 4, Math.PI, 0, 0];
+    const pendulum = new DoublePendulum(y0, context, FPS);
 
-    // var y0_2 = [3 * Math.PI / 4 + 0.0001, Math.PI, 0, 0];
-    // var pendulum2 = new Pendulum(y0_2, context, FPS);
+    // const y0_2 = [3 * Math.PI / 4 + 0.0001, Math.PI, 0, 0];
+    // const pendulum2 = new DoublePendulum(y0_2, context, FPS);
 
-    setInterval(update, 1000 / FPS);
+    requestAnimationFrame(update);
 
     /**
      * Update loop
@@ -35,6 +35,8 @@
 
         // pendulum2.draw();
         // pendulum2.step();
+
+        requestAnimationFrame(update);
     }
 
 })(document);
