@@ -17,9 +17,10 @@ const problems = {
         y: [10],
         plotMode: Plot.PLOT_MODE_NORMAL,
         f: function (t, y, dydt) {
-            const v0 = 10;
+            const g = 9.8,
+                v0 = 10; // Positive is thrown up
 
-            dydt[0] = v0;
+            dydt[0] = -g * t + v0;
         }
     },
 
