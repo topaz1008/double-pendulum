@@ -26,7 +26,7 @@ import { DoublePendulum } from './double-pendulum.js';
     // Add another pendulum to show how very small changes in the initial conditions
     // make for drastic change in behaviour in a very short time.
     // This is what makes this system chaotic.
-    const EPSILON = 0.001;
+    const EPSILON = 0.0001;
     const y0_2 = [(3 * PI / 4) + EPSILON, PI, 0, 0];
     const pendulum2 = new DoublePendulum(y0_2, context, FPS, {
         rodColor: 'rgb(0,78,253)',
