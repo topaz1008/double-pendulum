@@ -12,7 +12,7 @@ const problems = {
         }
     },
 
-    // Object thrown off an initial height with initial velocity
+    // Object thrown off an initial height with initial velocity (ballistic trajectory)
     ballistic: {
         y: [10],
         plotMode: Plot.PLOT_MODE_NORMAL,
