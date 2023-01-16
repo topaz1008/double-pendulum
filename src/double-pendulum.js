@@ -44,7 +44,7 @@ export class DoublePendulum {
         // Since the solver integrates in real-time and uses a fixed step size.
         // The speed of the simulation is tied to that step size.
         // this factor allows a control over time scaling according to the fps and an arbitrary timescale constant.
-        this.timeScaleIterations = (1 / this.stepSize) / fps * DoublePendulum.TIME_SCALE;
+        this.timeScaleIterations = Math.round((1 / this.stepSize) / fps * DoublePendulum.TIME_SCALE);
 
         this.origin = { x: 0, y: 0 };
 
