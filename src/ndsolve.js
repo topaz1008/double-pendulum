@@ -60,7 +60,7 @@ export class NDSolve {
         }
 
         return this.yOut;
-    };
+    }
 
     /**
      * Euler step.
@@ -77,5 +77,5 @@ export class NDSolve {
         }
 
         return this.yOut;
-    };
+    }
 }
