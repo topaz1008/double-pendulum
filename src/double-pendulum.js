@@ -8,9 +8,9 @@ const THETA_1 = 0,
 
 export class DoublePendulum {
     static GRAVITY = 9.81;
-    static TIME_SCALE = 1 / 2;
+    static TIME_SCALE = 1;
     static MAX_PATH_POINTS = 250;
-    static PATH_SIMPLIFY = 2;
+    static PATH_SIMPLIFY = 1;
 
     // Graphics scaling
     static ROD_SCALE = 125;
