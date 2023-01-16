@@ -66,7 +66,7 @@ export class DoublePendulum {
             this.solver.rk4Step(this.time);
             this.time += this.stepSize;
         }
-    };
+    }
 
     /**
      * Draw the pendulum.
@@ -97,7 +97,7 @@ export class DoublePendulum {
         this.#drawBob(bob2, DoublePendulum.BOB_SCALE * this.m2);
 
         this.drawCalls++;
-    };
+    }
 
     /**
      * Draw a single rod from p0 to p1.
@@ -144,7 +144,7 @@ export class DoublePendulum {
             const p0 = this.path[i];
             const p1 = this.path[i + 1];
 
-            let color = this.pathColor.multiply((i / pathLength) * 1);
+            let color = this.pathColor.scale((i / pathLength));
 
             this.context.strokeStyle = color.toString();
             this.context.beginPath();

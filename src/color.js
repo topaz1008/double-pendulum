@@ -9,7 +9,7 @@ export class Color {
         this.a = a;
     }
 
-    multiply(t) {
+    scale(t) {
         const r = this.r * t;
         const g = this.g * t;
         const b = this.b * t;
