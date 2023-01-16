@@ -19,8 +19,8 @@ import { DoublePendulum } from './double-pendulum.js';
     const y0 = [3 * PI / 4, PI, 0, 0];
     const pendulum1 = new DoublePendulum(y0, context, FPS, {
         rodColor: 'rgb(255,0,0)',
-        bobColor: 'rgb(0,255,208)',
-        pathColor: 'rgb(0,255,0)'
+        bobColor: 'rgb(154,103,21)',
+        pathColor: 'rgb(154,103,21)'
     });
 
     // Add another pendulum to show how very small changes in the initial conditions
