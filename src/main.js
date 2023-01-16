@@ -60,8 +60,8 @@ function update() {
     pendulum1.draw();
     pendulum1.step();
 
-    // pendulum2.draw();
-    // pendulum2.step();
+    pendulum2.draw();
+    pendulum2.step();
 
     requestAnimationFrame(update);
 }
