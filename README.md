@@ -6,7 +6,7 @@ A double pendulum simulation in Javascript.
 
 The demo shows how very small changes in initial conditions can make for a very different behaviour of the system in a very short time; thus making it a chaotic system.
 
-The demo starts with 2 pendulums using the same initial conditions, one pendulum has one of its starting values changed by EPSION (configurable) (default is 0.0001)
+The demo starts with 2 pendulums using the same initial conditions, one pendulum has one of its starting values changed by EPSILON (configurable) (default is 0.0001)
 
 even with that small of a change the different pendulums will start to diverge after about 5-7 seconds.
 
