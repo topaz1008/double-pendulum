@@ -46,12 +46,13 @@ export class DoublePendulum {
         // this factor allows a control over time scaling according to the fps and an arbitrary timescale constant.
         this.timeScaleIterations = Math.round((1 / this.stepSize) / fps * DoublePendulum.TIME_SCALE);
 
-        this.origin = { x: 0, y: 0 };
+        this.gravity = options.gravity || DoublePendulum.GRAVITY;
+        this.origin = options.origin || { x: 0, y: 0 };
 
-        this.m1 = 1; // Mass of bob 1
-        this.m2 = 1; // Mass of bob 2
-        this.l1 = 1; // Length of rod 1
-        this.l2 = 1; // Length of rod 2
+        this.m1 = options.m1 || 1; // Mass of bob 1
+        this.m2 = options.m2 || 1; // Mass of bob 2
+        this.l1 = options.l1 || 1; // Length of rod 1
+        this.l2 = options.l2 || 1; // Length of rod 2
 
         this.path = [];
 
