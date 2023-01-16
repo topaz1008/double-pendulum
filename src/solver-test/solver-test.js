@@ -38,7 +38,7 @@ function doPlot(problem, mode) {
 
     // Solve and plot the results
     const solver = new NDSolve(y, problem.f, STEP_SIZE);
-    plot = new Plot(context, solver, plotOptions);
+    plot = new Plot(context, plotOptions);
 
     plot.mode = mode || problem.plotMode;
 

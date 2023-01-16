@@ -2,9 +2,8 @@ export class Plot {
     static PLOT_MODE_NORMAL = 'normal';
     static PLOT_MODE_PHASE = 'phase';
 
-    constructor(context, solver, options) {
+    constructor(context, options) {
         this.context = context;
-        this.solver = solver;
 
         this.stepSize = options.stepSize;
 
