@@ -1,13 +1,28 @@
 import { NDSolve } from './ndsolve.js';
 import { Color } from './color.js';
 
+// Default options
+// Used if no options are passed
+const DEFAULT_OPTIONS = {
+    gravity: 9.81,
+    origin: { x: 0, y: 0 },
+    stepSize: 1 / 1000,
+    l1: 1, // Mass of bob 1 (top)
+    m1: 1, // Mass of bob 2 (bottom)
+    l2: 1, // Length of rod 1 (top)
+    m2: 1, // Length of rod 2 (bottom)
+    rodColor: 'rgb(255,0,0)',
+    bobColor: 'rgb(255,255,255)',
+    pathColor: 'rgb(0,255,0)'
+};
+
+// Named constants for easier array access
 const THETA_1 = 0,
     THETA_2 = 1,
     OMEGA_1 = 2,
     OMEGA_2 = 3;
 
 export class DoublePendulum {
-    static GRAVITY = 9.81;
     static TIME_SCALE = 1;
     static MAX_PATH_POINTS = 250;
     static PATH_SIMPLIFY = 1;
@@ -29,7 +44,9 @@ export class DoublePendulum {
         this.y = y0;
         this.context = context;
 
-        this.stepSize = 1 / 1000;
+        options = Object.assign(DEFAULT_OPTIONS, options || {});
+
+        this.stepSize = options.stepSize;
 
         const equations = this.#equations.bind(this); // Oh javascript
         this.solver = new NDSolve(this.y, equations, this.stepSize);
@@ -46,13 +63,13 @@ export class DoublePendulum {
         // this factor allows a control over time scaling according to the fps and an arbitrary timescale constant.
         this.timeScaleIterations = Math.round((1 / this.stepSize) / fps * DoublePendulum.TIME_SCALE);
 
-        this.gravity = options.gravity || DoublePendulum.GRAVITY;
-        this.origin = options.origin || { x: 0, y: 0 };
+        this.gravity = options.gravity;
+        this.origin = options.origin;
 
-        this.m1 = options.m1 || 1; // Mass of bob 1
-        this.m2 = options.m2 || 1; // Mass of bob 2
-        this.l1 = options.l1 || 1; // Length of rod 1
-        this.l2 = options.l2 || 1; // Length of rod 2
+        this.m1 = options.m1; // Mass of bob 1
+        this.m2 = options.m2; // Mass of bob 2
+        this.l1 = options.l1; // Length of rod 1
+        this.l2 = options.l2; // Length of rod 2
 
         this.path = [];
 
@@ -201,7 +218,7 @@ export class DoublePendulum {
     #equations(t, y, dydt) {
         const m1 = this.m1, m2 = this.m2,
             l1 = this.l1, l2 = this.l2,
-            g = DoublePendulum.GRAVITY;
+            g = this.gravity;
 
         const dTheta = y[THETA_2] - y[THETA_1]; // The change in angle
 
