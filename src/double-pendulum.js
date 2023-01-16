@@ -1,4 +1,5 @@
 import { NDSolve } from './ndsolve.js';
+import { Color } from './color.js';
 
 const THETA_1 = 0,
     THETA_2 = 1,
@@ -22,17 +23,22 @@ export class DoublePendulum {
      * @param y0 {Array<Number>}
      * @param context {CanvasRenderingContext2D}
      * @param fps {Number}
+     * @param options {Object}
      */
-    constructor(y0, context, fps) {
+    constructor(y0, context, fps, options) {
         this.y = y0;
         this.context = context;
 
         this.stepSize = 1 / 1000;
 
-        const equations = this.equations.bind(this); // Oh javascript
+        const equations = this.#equations.bind(this); // Oh javascript
         this.solver = new NDSolve(this.y, equations, this.stepSize);
 
         this.time = 0;
+
+        this.rodColor = Color.fromString(options.rodColor);
+        this.bobColor = Color.fromString(options.bobColor);
+        this.pathColor = Color.fromString(options.pathColor);
 
         // How many integration steps to take in one call to step() (one frame).
         // Since the solver integrates in real-time and uses a fixed step size.
@@ -66,8 +72,8 @@ export class DoublePendulum {
      * Draw the pendulum.
      */
     draw() {
-        const bob1 = this.position1(),
-            bob2 = this.position2();
+        const bob1 = this.#position1(),
+            bob2 = this.#position2();
 
         if (this.path.length >= DoublePendulum.MAX_PATH_POINTS) {
             // Remove first element
@@ -81,13 +87,14 @@ export class DoublePendulum {
             this.drawCalls = 0;
         }
 
-        this.drawPath();
+        this.#drawPath();
 
-        this.drawRod(this.origin, bob1);
-        this.drawRod(bob1, bob2);
+        this.#drawRod(this.origin, bob1);
+        this.#drawRod(bob1, bob2);
 
-        this.drawBob(bob1, DoublePendulum.BOB_SCALE * this.m1);
-        this.drawBob(bob2, DoublePendulum.BOB_SCALE * this.m2);
+        this.#drawBob(this.origin, DoublePendulum.BOB_SCALE * this.m1);
+        this.#drawBob(bob1, DoublePendulum.BOB_SCALE * this.m1);
+        this.#drawBob(bob2, DoublePendulum.BOB_SCALE * this.m2);
 
         this.drawCalls++;
     };
@@ -99,9 +106,9 @@ export class DoublePendulum {
      * @param p1 {Object}
      * @private
      */
-    drawRod(p0, p1) {
+    #drawRod(p0, p1) {
         this.context.lineWidth = 4;
-        this.context.strokeStyle = '#ff0000';
+        this.context.strokeStyle = this.rodColor.toString();
         this.context.beginPath();
         this.context.moveTo(p0.x, p0.y);
         this.context.lineTo(p1.x, p1.y);
@@ -116,9 +123,9 @@ export class DoublePendulum {
      * @param radius {Number}
      * @private
      */
-    drawBob(p0, radius) {
+    #drawBob(p0, radius) {
         this.context.lineWidth = 2;
-        this.context.fillStyle = '#dddddd';
+        this.context.fillStyle = this.bobColor.toString();
         this.context.beginPath();
         this.context.arc(p0.x, p0.y, radius, 0, 2 * Math.PI);
         this.context.closePath();
@@ -130,17 +137,16 @@ export class DoublePendulum {
      *
      * @private
      */
-    drawPath() {
+    #drawPath() {
         const pathLength = this.path.length;
 
         for (let i = 0; i < (pathLength - 1); i++) {
             const p0 = this.path[i];
             const p1 = this.path[i + 1];
 
-            let color = (i / pathLength) * 255;
-            color |= color;
+            let color = this.pathColor.multiply((i / pathLength) * 1);
 
-            this.context.strokeStyle = 'rgba(0, ' + color + ', 0, 1)';
+            this.context.strokeStyle = color.toString();
             this.context.beginPath();
 
             this.context.moveTo(p0.x, p0.y);
@@ -155,7 +161,7 @@ export class DoublePendulum {
      * @returns {Object}
      * @private
      */
-    position1() {
+    #position1() {
         const l1Scaled = this.l1 * DoublePendulum.ROD_SCALE;
 
         return {
@@ -170,7 +176,7 @@ export class DoublePendulum {
      * @returns {Object}
      * @private
      */
-    position2() {
+    #position2() {
         const l1Scaled = this.l1 * DoublePendulum.ROD_SCALE,
             l2Scaled = this.l2 * DoublePendulum.ROD_SCALE;
 
@@ -191,7 +197,7 @@ export class DoublePendulum {
      * @param dydt {Array<Number>}
      * @private
      */
-    equations(t, y, dydt) {
+    #equations(t, y, dydt) {
         const m1 = this.m1, m2 = this.m2,
             l1 = this.l1, l2 = this.l2,
             g = DoublePendulum.GRAVITY;
