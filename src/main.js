@@ -4,23 +4,34 @@ const VIEW_WIDTH = 1024,
     VIEW_HEIGHT = 768,
     FPS = 60;
 
+const PI = Math.PI,
+    HALF_WIDTH = VIEW_WIDTH / 2,
+    HALF_HEIGHT = VIEW_HEIGHT / 2;
+
+let isPaused = false;
+
 const canvas = document.getElementById('main'),
     context = canvas.getContext('2d');
 
 canvas.width = VIEW_WIDTH;
 canvas.height = VIEW_HEIGHT;
 
-const PI = Math.PI,
-    HALF_WIDTH = VIEW_WIDTH / 2,
-    HALF_HEIGHT = VIEW_HEIGHT / 2;
+context.globalCompositeOperation = 'screen';
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'p') {
+        isPaused = !isPaused;
+    }
+
+}, false);
 
 const options = {
     gravity: 9.81,
     origin: { x: 0, y: 0 },
     stepSize: 1 / 1000,
     l1: 1, // Length of rod 1 (top)
-    l2: 1, // Length of rod 2 (bottom)
     m1: 1, // Mass of bob 1 (top)
+    l2: 1, // Length of rod 2 (bottom)
     m2: 1  // Mass of bob 2 (bottom)
 };
 
@@ -54,10 +65,10 @@ function update() {
     context.clearRect(-HALF_WIDTH, -HALF_HEIGHT, VIEW_WIDTH, VIEW_HEIGHT);
 
     pendulum1.draw();
-    pendulum1.step();
+    if (!isPaused) pendulum1.step();
 
     pendulum2.draw();
-    pendulum2.step();
+    if (!isPaused) pendulum2.step();
 
     requestAnimationFrame(update);
 }
