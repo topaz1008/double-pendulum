@@ -7,10 +7,10 @@ const DEFAULT_OPTIONS = {
     gravity: 9.81,
     origin: { x: 0, y: 0 },
     stepSize: 1 / 1000,
-    l1: 1, // Mass of bob 1 (top)
-    l2: 1, // Length of rod 1 (top)
-    m1: 1, // Mass of bob 2 (bottom)
-    m2: 1, // Length of rod 2 (bottom)
+    l1: 1, // Length of rod 1 (top)
+    l2: 1, // Length of rod 2 (bottom)
+    m1: 1, // Mass of bob 1 (top)
+    m2: 1,  // Mass of bob 2 (bottom)
     rodColor: 'rgb(255,0,0)',
     bobColor: 'rgb(255,255,255)',
     pathColor: 'rgb(0,255,0)'
