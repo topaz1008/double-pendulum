@@ -1,4 +1,6 @@
 import { DoublePendulum } from './double-pendulum.js';
+import { RealTimePlot } from './realtime-plot.js';
+import { Color } from './color.js';
 
 const VIEW_WIDTH = 1024,
     VIEW_HEIGHT = 768,
@@ -8,22 +10,14 @@ const PI = Math.PI,
     HALF_WIDTH = VIEW_WIDTH / 2,
     HALF_HEIGHT = VIEW_HEIGHT / 2;
 
-let isPaused = false;
+let time = 0,
+    isPaused = false;
 
-const canvas = document.getElementById('main'),
-    context = canvas.getContext('2d');
+const context = createCanvas('main', VIEW_WIDTH, VIEW_HEIGHT);
+const plotContext = createCanvas('plot', VIEW_WIDTH, HALF_HEIGHT);
 
-canvas.width = VIEW_WIDTH;
-canvas.height = VIEW_HEIGHT;
-
-context.globalCompositeOperation = 'screen';
-
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'p') {
-        isPaused = !isPaused;
-    }
-
-}, false);
+// Integration settings
+const STEP_SIZE = 1 / 1000;
 
 const options = {
     gravity: 9.81,
@@ -54,21 +48,124 @@ const pendulum2 = new DoublePendulum(y0_2, context, FPS, Object.assign(options, 
     pathColor: 'rgb(255,255,255)'
 }));
 
+// Plot settings
+const plotOptions = {
+    width: 1024,
+    height: HALF_HEIGHT,
+    stepSize: STEP_SIZE,
+    mode: RealTimePlot.PLOT_MODE_NORMAL,
+    scale: 1,
+    centerOrigin: false,
+    drawPoints: false,
+    axisColor: 'rgb(0,0,0)',
+    plotColor: 'rgb(66,241,27)',
+    pointColor: 'rgb(0,0,0)'
+};
+
+const bob1X = [], bob1Y = [],
+    bob2X = [], bob2Y = [];
+
+const timeScale = 2000;
+const plot = new RealTimePlot(plotContext, plotOptions);
+
+function doPlotStep(t) {
+    const b1 = pendulum1.position1(),
+        b2 = pendulum1.position2();
+
+    if (bob1X.length > 500) {
+        bob1X.splice(0, 300);
+    }
+    if (bob1Y.length > 500) {
+        bob1Y.splice(0, 300);
+    }
+
+    if (plot.mode === RealTimePlot.PLOT_MODE_NORMAL) {
+        // Normal plot
+        bob1X.push(t * timeScale);
+        bob1Y.push(b1.x * 0.5);
+
+    } else {
+        // Phase plot
+        bob1X.push(b1.x);
+        bob1Y.push(b1.y * 0.5);
+    }
+
+    if (plot.mode === RealTimePlot.PLOT_MODE_NORMAL) {
+        // Normal plot
+        bob2X.push(t * timeScale);
+        bob2Y.push(b2.x * 0.5);
+
+    } else {
+        // Phase plot
+        bob2X.push(b2.x);
+        bob2Y.push(b2.y * 0.5);
+    }
+}
+
+function doPlotDraw() {
+    // Plot
+    const oldColor = plot.plotColor.clone();
+
+    plot.clear(time, timeScale);
+    plot.drawAxis(VIEW_WIDTH + (time * timeScale), 300);
+
+    plot.draw(bob1X, bob1Y);
+
+    plot.plotColor = Color.fromString('rgb(36,50,192)');
+    plot.draw(bob2X, bob2Y);
+
+    // Restore original color
+    plot.plotColor = oldColor;
+}
+
+function createCanvas(id, width, height) {
+    const el = document.getElementById(id);
+    if (el !== null) {
+        return el.getContext('2d');
+    }
+
+    // Create a new canvas element.
+    const c = document.createElement('canvas'),
+        ctx = c.getContext('2d');
+
+    c.id = id;
+    c.width = width;
+    c.height = height;
+
+    document.body.appendChild(c);
+
+    return ctx;
+}
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'p') {
+        isPaused = !isPaused;
+    }
+
+}, false);
+
 requestAnimationFrame(update);
 
 /**
  * Update loop
  */
 function update() {
+    time += STEP_SIZE;
+
     context.setTransform(1, 0, 0, 1, 0, 0);
     context.translate(HALF_WIDTH, HALF_HEIGHT);
     context.clearRect(-HALF_WIDTH, -HALF_HEIGHT, VIEW_WIDTH, VIEW_HEIGHT);
 
+    // Update the pendulums
     pendulum1.draw();
     if (!isPaused) pendulum1.step();
 
     pendulum2.draw();
     if (!isPaused) pendulum2.step();
+
+    // Update the bottom plot
+    doPlotDraw();
+    if (!isPaused) doPlotStep(time);
 
     requestAnimationFrame(update);
 }

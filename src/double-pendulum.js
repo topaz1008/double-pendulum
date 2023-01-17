@@ -90,8 +90,8 @@ export class DoublePendulum {
      * Draw the pendulum.
      */
     draw() {
-        const bob1 = this.#position1(),
-            bob2 = this.#position2();
+        const bob1 = this.position1(),
+            bob2 = this.position2();
 
         if (this.path.length >= DoublePendulum.MAX_PATH_POINTS) {
             // Remove first element
@@ -177,9 +177,8 @@ export class DoublePendulum {
      * Get the first bob's current position in cartesian coordinates.
      *
      * @returns {Object}
-     * @private
      */
-    #position1() {
+    position1() {
         const l1Scaled = this.l1 * DoublePendulum.ROD_SCALE;
 
         return {
@@ -192,9 +191,8 @@ export class DoublePendulum {
      * Get the second bob's current position in cartesian coordinates.
      *
      * @returns {Object}
-     * @private
      */
-    #position2() {
+    position2() {
         const l1Scaled = this.l1 * DoublePendulum.ROD_SCALE,
             l2Scaled = this.l2 * DoublePendulum.ROD_SCALE;
 

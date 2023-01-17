@@ -16,6 +16,10 @@ export class Color {
         return new Color(r, g, b);
     }
 
+    clone() {
+        return new Color(this.r, this.g, this.b);
+    }
+
     toString() {
         return `rgb(${this.r}, ${this.g}, ${this.b})`;
     }
