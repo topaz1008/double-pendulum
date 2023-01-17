@@ -29,13 +29,13 @@ export class Color {
         if (match.length < 2) {
             console.log(`Color.fromString() -> invalid string color format ${str}`);
 
-            return new Color();
+            return new Color(255, 255, 255, 1);
         }
 
         const r = parseInt(match[1], 10);
         const g = parseInt(match[2], 10);
         const b = parseInt(match[3], 10);
-        const a = 1; // TODO: can add alpha support if needed.
+        const a = 255; // TODO: can add alpha support if needed.
 
         return new Color(r, g, b, a);
     }

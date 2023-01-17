@@ -19,9 +19,9 @@ const options = {
     origin: { x: 0, y: 0 },
     stepSize: 1 / 1000,
     l1: 1, // Mass of bob 1 (top)
-    m1: 1, // Mass of bob 2 (bottom)
     l2: 1, // Length of rod 1 (top)
-    m2: 1 // Length of rod 2 (bottom)
+    m1: 1, // Mass of bob 2 (bottom)
+    m2: 1  // Length of rod 2 (bottom)
 };
 
 // Initial conditions [theta1, theta2, omega1, omega2]

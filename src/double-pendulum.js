@@ -8,8 +8,8 @@ const DEFAULT_OPTIONS = {
     origin: { x: 0, y: 0 },
     stepSize: 1 / 1000,
     l1: 1, // Mass of bob 1 (top)
-    m1: 1, // Mass of bob 2 (bottom)
     l2: 1, // Length of rod 1 (top)
+    m1: 1, // Mass of bob 2 (bottom)
     m2: 1, // Length of rod 2 (bottom)
     rodColor: 'rgb(255,0,0)',
     bobColor: 'rgb(255,255,255)',
@@ -67,8 +67,8 @@ export class DoublePendulum {
         this.origin = options.origin;
 
         this.m1 = options.m1; // Mass of bob 1
-        this.m2 = options.m2; // Mass of bob 2
         this.l1 = options.l1; // Length of rod 1
+        this.m2 = options.m2; // Mass of bob 2
         this.l2 = options.l2; // Length of rod 2
 
         this.path = [];
