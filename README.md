@@ -2,7 +2,7 @@ double-pendulum
 =====================
 A double pendulum simulation in Javascript.
 
-[Live demo](https://topaz1008.github.io/double-pendulum/pendulum.html)
+[Live demo](https://topaz1008.github.io/double-pendulum/pendulum.html); You can pause/unpause the simulation using the `P` key.
 
 The demo shows how very small changes in initial conditions can make for a very different behaviour of the system in a very short time; thus making it a chaotic system.
 
