@@ -72,8 +72,8 @@ const plotOptions = {
     pointColor: plotColors.point
 };
 
-const ID_AXIS = 1,
-    ID_P1 = 2,
+const ID_AXIS = 0,
+    ID_P1 = 1,
     ID_P2 = 2;
 
 const plotter = new Plotter(plotContext, plotOptions);
