@@ -57,10 +57,12 @@ export class RealTimePlot {
      * Flips the y values so positive is up.
      *
      * @param x {Array<Number>}
+     * @param xl {Number}
      * @param y {Array<Number>}
+     * @param yl {Number}
      */
-    draw(x, y) {
-        if (x.length !== y.length) {
+    draw(x, xl, y, yl) {
+        if (xl !== yl) {
             throw new Error('RealTimePlot->draw(): Number of x values has to match number of y values.');
         }
 
@@ -71,7 +73,7 @@ export class RealTimePlot {
         this.context.strokeStyle = this.plotColor.toString();
         this.context.beginPath();
 
-        for (let i = 0; i < (x.length - 1); i++) {
+        for (let i = 0; i < (xl - 1); i++) {
             this.context.moveTo(x[i], -y[i]);
             this.context.lineTo(x[i + 1], -y[i + 1]);
         }
@@ -84,7 +86,7 @@ export class RealTimePlot {
             this.context.fillStyle = this.pointColor.toString();
             this.context.beginPath();
 
-            for (let i = 0; i < x.length; i++) {
+            for (let i = 0; i < xl; i++) {
                 this.context.arc(x[i], -y[i], 1, 0, 2 * Math.PI);
                 this.context.closePath();
             }

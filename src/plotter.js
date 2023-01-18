@@ -64,6 +64,7 @@ const DEFAULT_OPTIONS = {
  */
 export class Plotter {
     map = {};
+    counts = {};
     options;
     rtPlot;
     textLines = {};
@@ -77,14 +78,6 @@ export class Plotter {
         this.rtPlot = new RealTimePlot(context, opts);
     }
 
-    get mode() {
-        return this.#mode;
-    }
-
-    set mode(value) {
-        this.#mode = value;
-    }
-
     /**
      *
      * @param id {String|Number}
@@ -92,7 +85,17 @@ export class Plotter {
      */
     add(id) {
         if (this.map[id] === undefined) {
-            this.map[id] = [[], []];
+            // Use constant size arrays for efficiency
+            this.map[id] = [
+                new Array(PlotterConstants.ARRAY_SIZE_LIMIT),
+                new Array(PlotterConstants.ARRAY_SIZE_LIMIT)
+            ];
+        }
+        if (this.counts[id] === undefined) {
+            // Since we use constant size arrays we need
+            // to keep track of how many values we actually hold for each array.
+            // This will be used to index the next element in its place
+            this.counts[id] = { x: 0, y: 0 };
         }
 
         return this;
@@ -123,26 +126,30 @@ export class Plotter {
      */
     step(id, t, x, y) {
         if (!this.map[id]) {
-            throw new Error(`No id: ${id}`);
+            throw new Error(`Plotter->step() -No id: ${id}`);
         }
-
         const idValues = this.map[id];
+        const counts = this.counts[id];
         for (let i = 0; i < idValues.length; i++) {
             const xValues = idValues[0];
             const yValues = idValues[1];
 
-            this.#limitArraySize(xValues, PlotterConstants.ARRAY_SIZE_LIMIT);
-            this.#limitArraySize(yValues, PlotterConstants.ARRAY_SIZE_LIMIT);
+            this.#shiftArray(id, [xValues, yValues]);
 
+            // console.log(counts.x, counts.y);
             if (this.rtPlot.mode === PlotMode.NORMAL) {
-                xValues.push(t * PlotterConstants.TIME_SCALE);
-                yValues.push(y * PlotterConstants.DATA_SCALE);
+                xValues[counts.x] = t * PlotterConstants.TIME_SCALE;
+                yValues[counts.y] = y * PlotterConstants.DATA_SCALE;
 
             } else {
                 // Phase plot
-                xValues.push(x * PlotterConstants.DATA_SCALE);
-                yValues.push(y * PlotterConstants.DATA_SCALE);
+                xValues[counts.x] = x * PlotterConstants.DATA_SCALE;
+                yValues[counts.y] = y * PlotterConstants.DATA_SCALE;
             }
+
+            // We just added a value to both array so update counts
+            counts.x++;
+            counts.y++;
         }
     }
 
@@ -153,16 +160,17 @@ export class Plotter {
      */
     draw(id, time) {
         if (!this.map[id]) {
-            throw new Error(`No id: ${id}`);
+            throw new Error(`Plotter->draw() - No id: ${id}`);
         }
 
         const idValues = this.map[id];
+        const counts = this.counts[id];
         for (let i = 0; i < idValues.length; i++) {
             const xValues = idValues[0];
             const yValues = idValues[1];
 
             this.rtPlot.drawAxis(this.rtPlot.width + (time * PlotterConstants.TIME_SCALE), 300);
-            this.rtPlot.draw(xValues, yValues);
+            this.rtPlot.draw(xValues, counts.x, yValues, counts.y);
         }
     }
 
@@ -190,21 +198,28 @@ export class Plotter {
     }
 
     /**
-     * This function will make sure 'arr.length' stays with in 'limit'.
+     * This function will shift all values in the arrays one index backwards.
+     * Making sure to update the counts of actual values in the array.
      *
-     * TODO: This implementation causes a lot of garbage to be created.
-     *       it could be optimized by having a constant size array
-     *       where indices are being recycled.
-     *
-     * @param arr {Array<Number>}
-     * @param limit {Number}
-     * @returns {Number}
+     * @param id {String}
+     * @param xyValues {Array<Array>}
      */
-    #limitArraySize(arr, limit) {
-        if (arr.length > limit) {
-            arr.splice(0, Math.round(limit / 2));
+    #shiftArray(id, xyValues) {
+        const counts = this.counts[id];
+        if (counts.x > PlotterConstants.ARRAY_SIZE_LIMIT) {
+            const xValues = xyValues[0];
+            for (let i = 0; i < (counts.x - 1); i++) {
+                xValues[i] = xValues[i + 1];
+            }
+            counts.x--;
         }
 
-        return arr.length;
+        if (counts.y > PlotterConstants.ARRAY_SIZE_LIMIT) {
+            const yValues = xyValues[1];
+            for (let i = 0; i < (counts.y - 1); i++) {
+                yValues[i] = yValues[i + 1];
+            }
+            counts.y--;
+        }
     }
 }
