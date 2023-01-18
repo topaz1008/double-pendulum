@@ -72,13 +72,16 @@ const plotOptions = {
     pointColor: plotColors.point
 };
 
-const plotter = new Plotter(plotContext, plotOptions);
-plotter.add('p1-horizontal')
-    .add('p2-horizontal');
+const ID_AXIS = 1,
+    ID_P1 = 2,
+    ID_P2 = 2;
 
-plotter.addTextLine('axis', new PlotText('x = time',plotTextColor))
-    .addTextLine('axis', new PlotText('y = pendulum1 bob1 x position', pendulum1Colors.path))
-    .addTextLine('axis', new PlotText('y = pendulum2 bob1 x position', pendulum2Colors.path));
+const plotter = new Plotter(plotContext, plotOptions);
+plotter.add(ID_P1).add(ID_P2);
+
+plotter.addTextLine(ID_AXIS, new PlotText('x = time',plotTextColor))
+    .addTextLine(ID_AXIS, new PlotText('y = pendulum1 bob1 x position', pendulum1Colors.path))
+    .addTextLine(ID_AXIS, new PlotText('y = pendulum2 bob1 x position', pendulum2Colors.path));
 
 function plotStep(t) {
     // Step plot
@@ -86,9 +89,9 @@ function plotStep(t) {
         b2 = pendulum2.position1(true);
 
     // noinspection JSSuspiciousNameCombination :)
-    plotter.step('p1-horizontal', t, t, b1.x);
+    plotter.step(ID_P1, t, t, b1.x);
     // noinspection JSSuspiciousNameCombination
-    plotter.step('p2-horizontal', t, t, b2.x);
+    plotter.step(ID_P2, t, t, b2.x);
 }
 
 function plotDraw() {
@@ -98,13 +101,13 @@ function plotDraw() {
 
     const textXposition = 50 + (time * PlotterConstants.TIME_SCALE);
 
-    plotter.drawText('axis', textXposition, [50, 100, 150]);
+    plotter.drawText(ID_AXIS, textXposition, [50, 100, 150]);
 
     plotter.rtPlot.setPlotColor(pendulum1Colors.path);
-    plotter.draw('p1-horizontal', time);
+    plotter.draw(ID_P1, time);
 
     plotter.rtPlot.setPlotColor(pendulum2Colors.path);
-    plotter.draw('p2-horizontal', time);
+    plotter.draw(ID_P2, time);
     plotter.rtPlot.restorePlotColor();
 }
 

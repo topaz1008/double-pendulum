@@ -75,6 +75,11 @@ export class Plotter {
         this.#mode = value;
     }
 
+    /**
+     *
+     * @param id {String|Number}
+     * @returns {Plotter}
+     */
     add(id) {
         if (this.map[id] === undefined) {
             this.map[id] = [[], []];
@@ -83,6 +88,12 @@ export class Plotter {
         return this;
     }
 
+    /**
+     *
+     * @param id {String|Number}
+     * @param plotText {PlotText}
+     * @returns {Plotter}
+     */
     addTextLine(id, plotText) {
         if (this.textLines[id] === undefined) {
             this.textLines[id] = [];
@@ -93,6 +104,13 @@ export class Plotter {
         return this;
     }
 
+    /**
+     *
+     * @param id {String|Number}
+     * @param t {Number}
+     * @param x {Number}
+     * @param y {Number}
+     */
     step(id, t, x, y) {
         if (!this.map[id]) {
             throw new Error(`No id: ${id}`);
@@ -118,6 +136,11 @@ export class Plotter {
         }
     }
 
+    /**
+     *
+     * @param id {String|Number}
+     * @param time {Number}
+     */
     draw(id, time) {
         if (!this.map[id]) {
             throw new Error(`No id: ${id}`);
@@ -135,7 +158,7 @@ export class Plotter {
 
     /**
      *
-     * @param id {String}
+     * @param id {String|Number}
      * @param x {Number}
      * @param y {Array<Number>}
      */
