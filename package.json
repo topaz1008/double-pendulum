@@ -1,14 +1,21 @@
 {
     "name": "double-pendulum",
     "version": "1.0.0",
-    "description": "",
+    "description": "A double pendulum simulation in Javascript.",
     "type": "module",
     "license": "MIT",
     "author": {
         "name": "Topaz Bar",
         "email": "topaz1008@gmail.com"
     },
-    "keywords": [],
+    "keywords": [
+        "simulation",
+        "pyhsics",
+        "pendulum",
+        "double-pendulum",
+        "canvas",
+        "javascript"
+    ],
     "dependencies": {},
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 0"
