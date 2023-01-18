@@ -1,4 +1,5 @@
 import { PlotMode, RealTimePlot } from './realtime-plot.js';
+import { plotTextColor } from './color-constants.js';
 
 // Plot settings
 const DEFAULT_OPTIONS = {
@@ -19,6 +20,32 @@ export class PlotterConstants {
     static DATA_SCALE = 50;
 }
 
+export class PlotText {
+    text;
+    x; y;
+    color;
+    font = '35px serif';
+
+    constructor(text, color) {
+        this.text = text;
+        this.color = color;
+        this.x = 0;
+        this.y = 0;
+    }
+
+    draw(context) {
+        context.font = this.font;
+
+        const prevFillStyle = context.fillStyle;
+        context.fillStyle = this.color.toString();
+
+        context.fillText(this.text, this.x, this.y);
+
+        // Restore previous color
+        context.fillStyle = prevFillStyle
+    }
+}
+
 /**
  * This class handles plotting real time values for multiple 'id(s)'
  * an 'id' consists of an array, with 2 nested arrays inside it.
@@ -29,6 +56,7 @@ export class Plotter {
     map = {};
     options;
     rtPlot;
+    textLines = {};
 
     // Private
     #mode = PlotMode.NORMAL;
@@ -51,6 +79,16 @@ export class Plotter {
         if (this.map[id] === undefined) {
             this.map[id] = [[], []];
         }
+
+        return this;
+    }
+
+    addTextLine(id, plotText) {
+        if (this.textLines[id] === undefined) {
+            this.textLines[id] = [];
+        }
+
+        this.textLines[id].push(plotText);
 
         return this;
     }
@@ -93,6 +131,29 @@ export class Plotter {
             this.rtPlot.drawAxis(this.rtPlot.width + (time * PlotterConstants.TIME_SCALE), 300);
             this.rtPlot.draw(xValues, yValues);
         }
+    }
+
+    /**
+     *
+     * @param id {String}
+     * @param x {Number}
+     * @param y {Array<Number>}
+     */
+    drawText(id, x, y) {
+        const fillStyle = this.rtPlot.context.fillStyle;
+
+        let lines = this.textLines[id];
+        for (let i = 0; i < lines.length; i++) {
+            const l = lines[i];
+
+            this.rtPlot.context.fillStyle = l.color.toString();
+
+            l.x = x;
+            l.y = y[i];
+            l.draw(this.rtPlot.context);
+        }
+
+        this.rtPlot.context.fillStyle = fillStyle;
     }
 
     /**

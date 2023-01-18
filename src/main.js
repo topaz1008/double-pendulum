@@ -1,6 +1,6 @@
 import { DoublePendulum } from './double-pendulum.js';
 import { PlotMode } from './realtime-plot.js';
-import { Plotter, PlotterConstants } from './plotter.js';
+import { Plotter, PlotterConstants, PlotText } from './plotter.js';
 import {
     mainBackgroundColor,
     pendulum1Colors,
@@ -73,8 +73,12 @@ const plotOptions = {
 };
 
 const plotter = new Plotter(plotContext, plotOptions);
-plotter.add('graph1');
-plotter.add('graph2');
+plotter.add('p1-horizontal')
+    .add('p2-horizontal');
+
+plotter.addTextLine('axis', new PlotText('x = time',plotTextColor))
+    .addTextLine('axis', new PlotText('y = pendulum1 bob1 x position', pendulum1Colors.path))
+    .addTextLine('axis', new PlotText('y = pendulum2 bob1 x position', pendulum2Colors.path));
 
 function plotStep(t) {
     // Step plot
@@ -82,9 +86,9 @@ function plotStep(t) {
         b2 = pendulum2.position1(true);
 
     // noinspection JSSuspiciousNameCombination :)
-    plotter.step('graph1', t, t, b1.x);
+    plotter.step('p1-horizontal', t, t, b1.x);
     // noinspection JSSuspiciousNameCombination
-    plotter.step('graph2', t, t, b2.x);
+    plotter.step('p2-horizontal', t, t, b2.x);
 }
 
 function plotDraw() {
@@ -92,22 +96,15 @@ function plotDraw() {
     plotter.rtPlot.clear(time);
     plotter.rtPlot.drawAxis(VIEW_WIDTH + (time * PlotterConstants.TIME_SCALE), 300);
 
-    // TODO: let each graph define it's own text
-    plotContext.font = '35px serif';
     const textXposition = 50 + (time * PlotterConstants.TIME_SCALE);
 
-    plotContext.fillStyle = plotTextColor;
-    plotContext.fillText('x = time', textXposition, 50);
-    plotContext.fillStyle = pendulum1Colors.path;
-    plotContext.fillText('y = pendulum1 bob1 x position', textXposition, 100);
-    plotContext.fillStyle = pendulum2Colors.path;
-    plotContext.fillText('y = pendulum2 bob1 x position', textXposition, 150);
+    plotter.drawText('axis', textXposition, [50, 100, 150]);
 
     plotter.rtPlot.setPlotColor(pendulum1Colors.path);
-    plotter.draw('graph1', time);
+    plotter.draw('p1-horizontal', time);
 
     plotter.rtPlot.setPlotColor(pendulum2Colors.path);
-    plotter.draw('graph2', time);
+    plotter.draw('p2-horizontal', time);
     plotter.rtPlot.restorePlotColor();
 }
 
