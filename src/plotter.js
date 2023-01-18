@@ -1,34 +1,30 @@
 import { PlotMode, RealTimePlot } from './realtime-plot.js';
-import { plotTextColor } from './color-constants.js';
 
-// Plot settings
-const DEFAULT_OPTIONS = {
-    width: 1024,
-    height: 768 / 2,
-    stepSize: 1 / 1000,
-    mode: 0, //PlotMode.NORMAL
-    scale: 1,
-    drawPoints: false,
-    axisColor: 'rgb(0,0,0)',
-    plotColor: 'rgb(56,229,19)',
-    pointColor: 'rgb(0,0,0)'
-};
-
+/**
+ * Various constants used in RealTimePlot and Plotter
+ */
 export class PlotterConstants {
     static TIME_SCALE = 2000;
     static ARRAY_SIZE_LIMIT = 1000;
     static DATA_SCALE = 50;
 }
 
+/**
+ * Represents a line of text with its own position and color
+ */
 export class PlotText {
     text;
     x; y;
     color;
     font = '35px serif';
 
+    /**
+     * @param text {String}
+     * @param color {String=}
+     */
     constructor(text, color) {
         this.text = text;
-        this.color = color;
+        this.color = color || 'rgb(255,255,255)';
         this.x = 0;
         this.y = 0;
     }
@@ -46,11 +42,25 @@ export class PlotText {
     }
 }
 
+// Plot settings
+const DEFAULT_OPTIONS = {
+    width: 1024,
+    height: 768 / 2,
+    stepSize: 1 / 1000,
+    mode: 0, //PlotMode.NORMAL
+    scale: 1,
+    drawPoints: false,
+    axisColor: 'rgb(0,0,0)',
+    plotColor: 'rgb(56,229,19)',
+    pointColor: 'rgb(0,0,0)'
+};
+
 /**
  * This class handles plotting real time values for multiple 'id(s)'
  * an 'id' consists of an array, with 2 nested arrays inside it.
  * one for the x values and one for the y values.
  * This class will step all values each frame and then draw all added id(s)
+ * It is a wrapper around RealTimePlot
  */
 export class Plotter {
     map = {};

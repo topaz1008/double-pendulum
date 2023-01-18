@@ -1,5 +1,3 @@
-// noinspection DuplicatedCode // TODO: REMOVE
-
 import { Color } from './color.js';
 import { PlotterConstants } from './plotter.js';
 

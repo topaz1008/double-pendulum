@@ -94,7 +94,7 @@ function plotStep(t) {
     plotter.step(ID_P2, t, t, b2.x);
 }
 
-function plotDraw() {
+function plotDraw(time) {
     // Draw plot
     plotter.rtPlot.clear(time);
     plotter.rtPlot.drawAxis(VIEW_WIDTH + (time * PlotterConstants.TIME_SCALE), 300);
@@ -161,7 +161,7 @@ function update() {
     if (!isPaused) pendulum2.step();
 
     // Update the bottom plot
-    plotDraw();
+    plotDraw(time);
     if (!isPaused) plotStep(time);
 
     requestAnimationFrame(update);
