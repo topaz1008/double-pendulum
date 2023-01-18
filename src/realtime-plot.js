@@ -1,6 +1,7 @@
 // noinspection DuplicatedCode // TODO: REMOVE
 
 import { Color } from './color.js';
+import { PlotterConstants } from './plotter.js';
 
 const defaultOptions = {
     width: 1024,
@@ -13,6 +14,11 @@ const defaultOptions = {
     pointColor: 'rgb(255,255,255)'
 };
 
+export class PlotMode {
+    static NORMAL = 0;
+    static PHASE = 1;
+}
+
 /**
  * This class handles plotting an (x, y) graph in real time.
  * one instantiated with the canvas context and the desired options
@@ -20,9 +26,6 @@ const defaultOptions = {
  * one for the x values and one for the y values.
  */
 export class RealTimePlot {
-    static PLOT_MODE_NORMAL = 0;
-    static PLOT_MODE_PHASE = 1;
-
     /**
      *
      * @param context {CanvasRenderingContext2D}
@@ -42,7 +45,7 @@ export class RealTimePlot {
         this.drawPoints = options.drawPoints;
 
         this.scale = options.scale;
-        this.mode = options.mode || RealTimePlot.PLOT_MODE_NORMAL;
+        this.mode = options.mode || PlotMode.NORMAL;
         this.axisColor = Color.fromString(options.axisColor);
         this.pointColor = Color.fromString(options.pointColor);
         this.backgroundColor = Color.fromString(options.backgroundColor);
@@ -104,7 +107,7 @@ export class RealTimePlot {
         this.plotColor = this.oldPlotColor.clone();
     }
 
-    clear(time, timeScale) {
+    clear(time) {
         this.context.fillStyle = this.backgroundColor.toString();
 
         this.context.setTransform(1, 0, 0, 1, 0, 0);
@@ -113,8 +116,8 @@ export class RealTimePlot {
         this.context.clearRect(0, 0, this.width, this.height);
         this.context.fillRect(0, 0, this.width, this.height);
 
-        if (this.mode === RealTimePlot.PLOT_MODE_NORMAL) {
-            this.context.translate((this.width / 2) - (time * (timeScale)), this.height / 2);
+        if (this.mode === PlotMode.NORMAL) {
+            this.context.translate((this.width / 2) - (time * PlotterConstants.TIME_SCALE), this.height / 2);
 
         } else {
             this.translate();
@@ -125,7 +128,7 @@ export class RealTimePlot {
      * Set canvas transforms.
      */
     translate() {
-        if (this.mode === RealTimePlot.PLOT_MODE_PHASE) {
+        if (this.mode === PlotMode.PHASE) {
             this.context.translate(this.width / 2, this.height / 2);
         }
     }

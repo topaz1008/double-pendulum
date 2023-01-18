@@ -1,5 +1,6 @@
 import { DoublePendulum } from './double-pendulum.js';
-import { RealTimePlot } from './realtime-plot.js';
+import { PlotMode } from './realtime-plot.js';
+import { Plotter, PlotterConstants } from './plotter.js';
 import {
     mainBackgroundColor,
     pendulum1Colors,
@@ -9,27 +10,28 @@ import {
     plotColors
 } from './color-constants.js';
 
+// General constants
 const VIEW_WIDTH = 1024,
     VIEW_HEIGHT = 768,
-    FPS = 60;
-
-const PI = Math.PI,
+    FPS = 60,
+    PI = Math.PI,
     HALF_WIDTH = VIEW_WIDTH / 2,
     HALF_HEIGHT = VIEW_HEIGHT / 2;
 
+// Integration settings
+const STEP_SIZE = 1 / 1000;
+
+// State variables
 let time = 0,
     isPaused = false;
 
 const context = createCanvas('main', VIEW_WIDTH, VIEW_HEIGHT);
 const plotContext = createCanvas('plot', VIEW_WIDTH, HALF_HEIGHT);
 
-// Integration settings
-const STEP_SIZE = 1 / 1000;
-
 const options = {
     gravity: 9.81,
     origin: { x: 0, y: 0 },
-    stepSize: 1 / 1000,
+    stepSize: STEP_SIZE,
     l1: 1, // Length of rod 1 (top)
     m1: 1, // Mass of bob 1 (top)
     l2: 1, // Length of rod 2 (bottom)
@@ -57,10 +59,10 @@ const pendulum2 = new DoublePendulum(y0_2, context, FPS, Object.assign(options, 
 
 // Plot settings
 const plotOptions = {
-    width: 1024,
+    width: VIEW_WIDTH,
     height: HALF_HEIGHT,
     stepSize: STEP_SIZE,
-    mode: RealTimePlot.PLOT_MODE_NORMAL,
+    mode: PlotMode.NORMAL,
     scale: 1,
     centerOrigin: false,
     drawPoints: false,
@@ -70,76 +72,43 @@ const plotOptions = {
     pointColor: plotColors.point
 };
 
-// TODO: WIP; refactor this into Plotter class
-const bob1X = [], bob1Y = [],
-    bob2X = [], bob2Y = [];
-
-const timeScale = 2000;
-const plot = new RealTimePlot(plotContext, plotOptions);
-
-
-function limitArraySize(arr, limit) {
-    if (arr.length > limit) {
-        arr.splice(0, Math.round(limit / 2));
-    }
-
-    return arr.length;
-}
+const plotter = new Plotter(plotContext, plotOptions);
+plotter.add('graph1');
+plotter.add('graph2');
 
 function plotStep(t) {
-    // Step plot TODO: WIP
+    // Step plot
     const b1 = pendulum1.position1(true),
-        // b2 = pendulum1.position2(true);
         b2 = pendulum2.position1(true);
 
-    const arrLimit = 600;
-    limitArraySize(bob1X, arrLimit);
-    limitArraySize(bob1Y, arrLimit);
-    limitArraySize(bob2X, arrLimit);
-    limitArraySize(bob2Y, arrLimit);
-
-    const scale = 50;
-    if (plot.mode === RealTimePlot.PLOT_MODE_NORMAL) {
-        bob1X.push(t * timeScale);
-        bob1Y.push(b1.x * scale);
-
-    } else {
-        // Phase plot
-        bob1X.push(b1.x * scale);
-        bob1Y.push(b1.y * scale);
-    }
-
-    if (plot.mode === RealTimePlot.PLOT_MODE_NORMAL) {
-        bob2X.push(t * timeScale);
-        bob2Y.push(b2.x * scale);
-
-    } else {
-        bob2X.push(b2.x);
-        bob2Y.push(b2.y * scale);
-    }
+    // noinspection JSSuspiciousNameCombination :)
+    plotter.step('graph1', t, t, b1.x);
+    // noinspection JSSuspiciousNameCombination
+    plotter.step('graph2', t, t, b2.x);
 }
 
 function plotDraw() {
-    // Draw plot TODO: WIP
-    plot.clear(time, timeScale);
-    plot.drawAxis(VIEW_WIDTH + (time * timeScale), 300);
+    // Draw plot
+    plotter.rtPlot.clear(time);
+    plotter.rtPlot.drawAxis(VIEW_WIDTH + (time * PlotterConstants.TIME_SCALE), 300);
 
+    // TODO: let each graph define it's own text
     plotContext.font = '35px serif';
-    const x = 50 + (time * timeScale);
+    const textXposition = 50 + (time * PlotterConstants.TIME_SCALE);
 
     plotContext.fillStyle = plotTextColor;
-    plotContext.fillText('x = time', x, 50);
-    plotContext.fillStyle = 'rgb(0,204,0)';
-    plotContext.fillText('y = pendulum1 bob1 x position', x, 100);
-    plotContext.fillStyle = 'rgb(0,0,204)';
-    plotContext.fillText('y = pendulum2 bob1 x position', x, 150);
+    plotContext.fillText('x = time', textXposition, 50);
+    plotContext.fillStyle = pendulum1Colors.path;
+    plotContext.fillText('y = pendulum1 bob1 x position', textXposition, 100);
+    plotContext.fillStyle = pendulum2Colors.path;
+    plotContext.fillText('y = pendulum2 bob1 x position', textXposition, 150);
 
-    plot.draw(bob1X, bob1Y);
+    plotter.rtPlot.setPlotColor(pendulum1Colors.path);
+    plotter.draw('graph1', time);
 
-    plot.setPlotColor('rgb(0,0,204)');
-    plot.draw(bob2X, bob2Y);
-
-    plot.restorePlotColor();
+    plotter.rtPlot.setPlotColor(pendulum2Colors.path);
+    plotter.draw('graph2', time);
+    plotter.rtPlot.restorePlotColor();
 }
 
 function createCanvas(id, width, height) {
