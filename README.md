@@ -17,6 +17,7 @@ More information about the math and equations of motion can be found on [Wikiped
 ## NDSolve class
 
 A simple numerical differential equations solver. the solver integrates in real time.
+
 Supports the [Euler forward](https://en.wikipedia.org/wiki/Euler_method) method, and the classical [Runge-Kutta](https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods) method (RK4).
 
 Euler's method is a very simple and fast method to numerically solve an ODE. The downside is that it is not very accurate and requires using a very small step size.
