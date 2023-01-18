@@ -23,8 +23,8 @@ const THETA_1 = 0,
     OMEGA_2 = 3;
 
 export class DoublePendulum {
-    static TIME_SCALE = 1;
-    static MAX_PATH_POINTS = 250;
+    static TIME_SCALE = 1 / 1.15;
+    static MAX_PATH_POINTS = 300;
     static PATH_SIMPLIFY = 1;
 
     // Graphics scaling
@@ -110,7 +110,7 @@ export class DoublePendulum {
         this.#drawRod(this.origin, bob1);
         this.#drawRod(bob1, bob2);
 
-        this.#drawBob(this.origin, DoublePendulum.BOB_SCALE * this.m1);
+        this.#drawBob(this.origin, (DoublePendulum.BOB_SCALE / 1.5));
         this.#drawBob(bob1, DoublePendulum.BOB_SCALE * this.m1);
         this.#drawBob(bob2, DoublePendulum.BOB_SCALE * this.m2);
 
@@ -158,11 +158,17 @@ export class DoublePendulum {
     #drawPath() {
         const pathLength = this.path.length;
 
+        // Save current operation and change it
+        const prevOperation = this.context.globalCompositeOperation;
+        this.context.globalCompositeOperation = 'screen';
+
+        this.context.lineWidth = 2;
+
         for (let i = 0; i < (pathLength - 1); i++) {
             const p0 = this.path[i];
             const p1 = this.path[i + 1];
 
-            const c = this.pathColor.scale((i / pathLength));
+            const c = this.pathColor.scale(i / pathLength);
 
             this.context.strokeStyle = c.toString();
             this.context.beginPath();
@@ -171,15 +177,23 @@ export class DoublePendulum {
             this.context.lineTo(p1.x, p1.y);
             this.context.stroke();
         }
+
+        // Restore previous operation
+        this.context.globalCompositeOperation = prevOperation;
     }
 
     /**
      * Get the first bob's current position in cartesian coordinates.
      *
+     * @param raw {Boolean=}
      * @returns {Object}
      */
-    position1() {
-        const l1Scaled = this.l1 * DoublePendulum.ROD_SCALE;
+    position1(raw) {
+        let l1Scaled = this.l1 * DoublePendulum.ROD_SCALE;
+        if (raw === true) {
+            // Don't do any scaling (used for the regular plots)
+            l1Scaled = this.l1;
+        }
 
         return {
             x: l1Scaled * Math.sin(this.y[THETA_1]),
@@ -190,11 +204,16 @@ export class DoublePendulum {
     /**
      * Get the second bob's current position in cartesian coordinates.
      *
+     * @param raw {Boolean=}
      * @returns {Object}
      */
-    position2() {
-        const l1Scaled = this.l1 * DoublePendulum.ROD_SCALE,
+    position2(raw) {
+        let l1Scaled = this.l1 * DoublePendulum.ROD_SCALE,
             l2Scaled = this.l2 * DoublePendulum.ROD_SCALE;
+        if (raw === true) {
+            l1Scaled = this.l1;
+            l2Scaled = this.l2;
+        }
 
         return {
             x: l1Scaled * Math.sin(this.y[THETA_1]) + l2Scaled * Math.sin(this.y[THETA_2]),

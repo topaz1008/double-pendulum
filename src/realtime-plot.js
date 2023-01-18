@@ -7,11 +7,18 @@ const defaultOptions = {
     height: 768 / 2,
     stepSize: 1 / 1000,
     scale: 1,
+    backgroundColor: 'rgb(62,62,62)',
     axisColor: 'rgb(255,255,255)',
     plotColor: 'rgb(255,0,0)',
     pointColor: 'rgb(255,255,255)'
 };
 
+/**
+ * This class handles plotting an (x, y) graph in real time.
+ * one instantiated with the canvas context and the desired options
+ * You can then call draw() each frame with 2 arrays
+ * one for the x values and one for the y values.
+ */
 export class RealTimePlot {
     static PLOT_MODE_NORMAL = 0;
     static PLOT_MODE_PHASE = 1;
@@ -29,18 +36,19 @@ export class RealTimePlot {
         this.stepSize = options.stepSize;
 
         this.width = options.width;
-        this.halfWidth = options.width / 2;
         this.height = options.height;
-        this.halfHeight = options.height / 2;
 
         this.centerOrigin = options.centerOrigin;
         this.drawPoints = options.drawPoints;
 
         this.scale = options.scale;
-        this.mode = RealTimePlot.PLOT_MODE_NORMAL;
+        this.mode = options.mode || RealTimePlot.PLOT_MODE_NORMAL;
         this.axisColor = Color.fromString(options.axisColor);
-        this.plotColor = Color.fromString(options.plotColor);
         this.pointColor = Color.fromString(options.pointColor);
+        this.backgroundColor = Color.fromString(options.backgroundColor);
+
+        this.plotColor = Color.fromString(options.plotColor);
+        this.oldPlotColor = Color.fromString(options.plotColor);
     }
 
     /**
@@ -55,7 +63,10 @@ export class RealTimePlot {
             throw new Error('RealTimePlot->draw(): Number of x values has to match number of y values.');
         }
 
-        this.context.lineWidth = 3;
+        const prevOperation = this.context.globalCompositeOperation;
+        // this.context.globalCompositeOperation = 'screen';
+
+        this.context.lineWidth = 2;
         this.context.strokeStyle = this.plotColor.toString();
         this.context.beginPath();
 
@@ -67,6 +78,7 @@ export class RealTimePlot {
         this.context.closePath();
         this.context.stroke();
 
+        // Draw integration sample points?
         if (this.drawPoints === true /*&& this.stepSize >= 1 / 100*/) {
             this.context.fillStyle = this.pointColor.toString();
             this.context.beginPath();
@@ -78,29 +90,43 @@ export class RealTimePlot {
 
             this.context.fill();
         }
+
+        // Restore previous operation
+        this.context.globalCompositeOperation = prevOperation;
+    }
+
+    setPlotColor(colorString) {
+        this.oldPlotColor = this.plotColor.clone();
+        this.plotColor = Color.fromString(colorString);
+    }
+
+    restorePlotColor() {
+        this.plotColor = this.oldPlotColor.clone();
     }
 
     clear(time, timeScale) {
-        this.context.fillStyle = 'rgb(62, 62, 62)';
+        this.context.fillStyle = this.backgroundColor.toString();
 
         this.context.setTransform(1, 0, 0, 1, 0, 0);
         this.context.scale(this.scale, this.scale);
 
         this.context.clearRect(0, 0, this.width, this.height);
         this.context.fillRect(0, 0, this.width, this.height);
-        this.context.translate((this.width / 2) - (time * (timeScale)), this.height / 2);
+
+        if (this.mode === RealTimePlot.PLOT_MODE_NORMAL) {
+            this.context.translate((this.width / 2) - (time * (timeScale)), this.height / 2);
+
+        } else {
+            this.translate();
+        }
     }
 
     /**
      * Set canvas transforms.
      */
-    transform(x) {
+    translate() {
         if (this.mode === RealTimePlot.PLOT_MODE_PHASE) {
-            this.context.translate(this.halfWidth, this.halfHeight);
-
-        } else {
-            // Align to left
-            this.context.translate(0, this.halfHeight);
+            this.context.translate(this.width / 2, this.height / 2);
         }
     }
 
@@ -122,6 +148,10 @@ export class RealTimePlot {
         this.context.lineTo(0, Y_MAX);
         this.context.moveTo(-X_MAX, 0);
         this.context.lineTo(X_MAX, 0);
+        // this.context.moveTo(-X_MAX, -100);
+        // this.context.lineTo(X_MAX, -100);
+        // this.context.moveTo(-X_MAX, 100);
+        // this.context.lineTo(X_MAX, 100);
 
         this.context.closePath();
         this.context.stroke();
