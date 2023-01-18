@@ -72,14 +72,14 @@ export class Plotter {
         for (let i = 0; i < values.length; i++) {
             this.rtPlot.clear(time, Plotter.TIME_SCALE);
             this.rtPlot.drawAxis(this.rtPlot.width + (time * Plotter.TIME_SCALE), 300);
-            this.rtPlot.draw(bob1X, bob1Y);
+            // this.rtPlot.draw(bob1X, bob1Y);
         }
 
 
-        this.rtPlot.draw(bob1X, bob1Y);
+        // this.rtPlot.draw(bob1X, bob1Y);
 
         this.rtPlot.setPlotColor('rgb(21,38,218)');
-        this.rtPlot.draw(bob2X, bob2Y);
+        // this.rtPlot.draw(bob2X, bob2Y);
 
         this.rtPlot.restorePlotColor();
     }

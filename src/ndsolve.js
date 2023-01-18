@@ -1,7 +1,7 @@
 export class NDSolve {
 
     /**
-     * A simple numerical first order ODE solver.
+     * A simple numerical differential equations solver.
      *
      * Supports the classical Runge-Kutta method (RK4).
      * and Euler's forward method.

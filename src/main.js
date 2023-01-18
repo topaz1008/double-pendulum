@@ -1,5 +1,12 @@
 import { DoublePendulum } from './double-pendulum.js';
 import { RealTimePlot } from './realtime-plot.js';
+import {
+    mainBackgroundColor,
+    pendulum1Colors,
+    pendulum2Colors,
+    plotBackgroundColor,
+    plotColors
+} from './color-constants.js';
 
 const VIEW_WIDTH = 1024,
     VIEW_HEIGHT = 768,
@@ -31,9 +38,9 @@ const options = {
 // Initial conditions [theta1, theta2, omega1, omega2]
 const y0 = [3 * PI / 4, PI, 0, 0];
 const pendulum1 = new DoublePendulum(y0, context, FPS, Object.assign(options, {
-    rodColor: 'rgb(255,0,0)',
-    bobColor: 'rgb(154,103,21)',
-    pathColor: 'rgb(154,103,21)'
+    rodColor: pendulum1Colors.rod,
+    bobColor: pendulum1Colors.bob,
+    pathColor: pendulum1Colors.path
 }));
 
 // Add another pendulum to show how very small changes in the initial conditions
@@ -42,9 +49,9 @@ const pendulum1 = new DoublePendulum(y0, context, FPS, Object.assign(options, {
 const EPSILON = 1 / 10000;
 const y0_2 = [(3 * PI / 4) + EPSILON, PI, 0, 0];
 const pendulum2 = new DoublePendulum(y0_2, context, FPS, Object.assign(options, {
-    rodColor: 'rgb(0,78,253)',
-    bobColor: 'rgb(255,255,255)',
-    pathColor: 'rgb(255,255,255)'
+    rodColor: pendulum2Colors.rod,
+    bobColor: pendulum2Colors.bob,
+    pathColor: pendulum2Colors.path
 }));
 
 // Plot settings
@@ -56,10 +63,10 @@ const plotOptions = {
     scale: 1,
     centerOrigin: false,
     drawPoints: false,
-    backgroundColor: 'rgb(62,62,62)',
-    axisColor: 'rgb(0,0,0)',
-    plotColor: 'rgb(56,229,19)',
-    pointColor: 'rgb(255,255,255)'
+    backgroundColor: plotBackgroundColor,
+    axisColor: plotColors.axis,
+    plotColor: plotColors.plot,
+    pointColor: plotColors.point
 };
 
 // TODO: WIP; refactor this into Plotter class
@@ -68,6 +75,7 @@ const bob1X = [], bob1Y = [],
 
 const timeScale = 2000;
 const plot = new RealTimePlot(plotContext, plotOptions);
+
 
 function limitArraySize(arr, limit) {
     if (arr.length > limit) {
@@ -115,9 +123,19 @@ function plotDraw() {
     plot.clear(time, timeScale);
     plot.drawAxis(VIEW_WIDTH + (time * timeScale), 300);
 
+    plotContext.font = '35px serif';
+    const x = 50 + (time * timeScale);
+
+    plotContext.fillStyle = plotBackgroundColor;
+    plotContext.fillText('x = time', x, 50);
+    plotContext.fillStyle = 'rgb(0,204,0)';
+    plotContext.fillText('y = pendulum1 bob1 x position', x, 100);
+    plotContext.fillStyle = 'rgb(0,0,204)';
+    plotContext.fillText('y = pendulum2 bob1 x position', x, 150);
+
     plot.draw(bob1X, bob1Y);
 
-    plot.setPlotColor('rgb(21,38,218)');
+    plot.setPlotColor('rgb(0,0,204)');
     plot.draw(bob2X, bob2Y);
 
     plot.restorePlotColor();
@@ -161,7 +179,7 @@ function update() {
 
     context.setTransform(1, 0, 0, 1, 0, 0);
     context.translate(HALF_WIDTH, HALF_HEIGHT);
-    context.fillStyle = '#000';
+    context.fillStyle = mainBackgroundColor;
     context.clearRect(-HALF_WIDTH, -HALF_HEIGHT, VIEW_WIDTH, VIEW_HEIGHT);
     context.fillRect(-HALF_WIDTH, -HALF_HEIGHT, VIEW_WIDTH, VIEW_HEIGHT);
 

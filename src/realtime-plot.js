@@ -144,8 +144,8 @@ export class RealTimePlot {
         this.context.strokeStyle = this.axisColor.toString();
         this.context.beginPath();
 
-        this.context.moveTo(0, -Y_MAX);
-        this.context.lineTo(0, Y_MAX);
+        // this.context.moveTo(0, -Y_MAX);
+        // this.context.lineTo(0, Y_MAX);
         this.context.moveTo(-X_MAX, 0);
         this.context.lineTo(X_MAX, 0);
         // this.context.moveTo(-X_MAX, -100);
