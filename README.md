@@ -23,3 +23,8 @@ Supports the [Euler forward](https://en.wikipedia.org/wiki/Euler_method) method,
 Euler's method is a very simple and fast method to numerically solve an ODE. The downside is that it is not very accurate and requires using a very small step size.
 
 Runge-Kutta on the other hand is much more involved, but its very fast and very accurate.
+
+
+## TODO
+* Allow switching graph types on-the-fly
+* ...
