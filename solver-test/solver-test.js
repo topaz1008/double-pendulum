@@ -1,5 +1,5 @@
 import { Problem } from './problem.js';
-import { NDSolve } from '../ndsolve.js';
+import { NDSolve } from '../src/ndsolve.js';
 import { Plot } from './plot.js';
 
 const VIEW_WIDTH = 1024,
