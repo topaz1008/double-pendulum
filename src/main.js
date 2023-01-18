@@ -5,6 +5,7 @@ import {
     pendulum1Colors,
     pendulum2Colors,
     plotBackgroundColor,
+    plotTextColor,
     plotColors
 } from './color-constants.js';
 
@@ -126,7 +127,7 @@ function plotDraw() {
     plotContext.font = '35px serif';
     const x = 50 + (time * timeScale);
 
-    plotContext.fillStyle = plotBackgroundColor;
+    plotContext.fillStyle = plotTextColor;
     plotContext.fillText('x = time', x, 50);
     plotContext.fillStyle = 'rgb(0,204,0)';
     plotContext.fillText('y = pendulum1 bob1 x position', x, 100);

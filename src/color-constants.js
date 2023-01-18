@@ -15,6 +15,7 @@ export const pendulum2Colors = {
 
 // Bottom plot colors
 export const plotBackgroundColor = 'rgb(0,0,0)';
+export const plotTextColor = 'rgb(255,255,255)';
 
 export const plotColors = {
     axis: 'rgb(255,255,255)',
