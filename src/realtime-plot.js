@@ -78,13 +78,21 @@ export class RealTimePlot {
         this.context.closePath();
         this.context.stroke();
 
+        // Draw a circle on the last data point.
+        this.context.fillStyle = this.pointColor.toString();
+        this.context.beginPath();
+        this.context.arc(x[xl - 1], -y[yl - 1], 4, 0, 2 * Math.PI);
+        this.context.closePath();
+        this.context.fill();
+
         // Draw integration sample points?
         if (this.drawPoints === true /*&& this.stepSize >= 1 / 100*/) {
             this.context.fillStyle = this.pointColor.toString();
             this.context.beginPath();
 
             for (let i = 0; i < xl; i++) {
-                this.context.arc(x[i], -y[i], 1, 0, 2 * Math.PI);
+                this.context.moveTo(x[i], -y[i]);
+                this.context.arc(x[i], -y[i], 2, 0, 2 * Math.PI);
                 this.context.closePath();
             }
 
