@@ -49,7 +49,7 @@ export class DoublePendulum {
         this.stepSize = options.stepSize;
 
         const equations = this.#equations.bind(this); // Oh javascript
-        this.solver = new NDSolve(this.y, equations, this.stepSize);
+        this.solver = new NDSolve(this.y, equations, this.stepSize, NDSolve.METHOD_RK4);
 
         this.time = 0;
 
@@ -81,7 +81,7 @@ export class DoublePendulum {
      */
     step() {
         for (let i = 0; i < this.timeScaleIterations; i++) {
-            this.solver.rk4Step(this.time);
+            this.solver.step(this.time);
             this.time += this.stepSize;
         }
     }
