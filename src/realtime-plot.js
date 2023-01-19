@@ -66,9 +66,6 @@ export class RealTimePlot {
             throw new Error('RealTimePlot->draw(): Number of x values has to match number of y values.');
         }
 
-        const prevOperation = this.context.globalCompositeOperation;
-        // this.context.globalCompositeOperation = 'screen';
-
         this.context.lineWidth = 2;
         this.context.strokeStyle = this.plotColor.toString();
         this.context.beginPath();
@@ -93,9 +90,6 @@ export class RealTimePlot {
 
             this.context.fill();
         }
-
-        // Restore previous operation
-        this.context.globalCompositeOperation = prevOperation;
     }
 
     setPlotColor(colorString) {

@@ -5,8 +5,14 @@ import { PlotMode, RealTimePlot } from './realtime-plot.js';
  */
 export class PlotterConstants {
     static TIME_SCALE = 2000;
-    static ARRAY_SIZE_LIMIT = 1000;
     static DATA_SCALE = 50;
+
+    // How many sample points do we save?
+    // Once 'limit' is reached the array space will be recycled
+    // This could be increased/decreased depending on the width
+    // of the canvas; 1000 seems to work for a width of 768
+    // so everything that is being discarded does so out of the viewport.
+    static SAMPLE_POINTS_LIMIT = 1000;
 }
 
 /**
@@ -65,9 +71,9 @@ const DEFAULT_OPTIONS = {
 export class Plotter {
     map = {};
     counts = {};
+    textLines = {};
     options;
     rtPlot;
-    textLines = {};
 
     // Private
     #mode = PlotMode.NORMAL;
@@ -79,19 +85,20 @@ export class Plotter {
     }
 
     /**
+     * Register a new id
      *
      * @param id {String|Number}
      * @returns {Plotter}
      */
-    add(id) {
-        if (this.map[id] === undefined) {
+    registerId(id) {
+        if (this.#isUndefined(this.map[id])) {
             // Use constant size arrays for efficiency
             this.map[id] = [
-                new Array(PlotterConstants.ARRAY_SIZE_LIMIT),
-                new Array(PlotterConstants.ARRAY_SIZE_LIMIT)
+                new Array(PlotterConstants.SAMPLE_POINTS_LIMIT), // xValues
+                new Array(PlotterConstants.SAMPLE_POINTS_LIMIT)  // yValues
             ];
         }
-        if (this.counts[id] === undefined) {
+        if (this.#isUndefined(this.counts[id])) {
             // Since we use constant size arrays we need
             // to keep track of how many values we actually hold for each array.
             // This will be used to index the next element in its place
@@ -102,13 +109,14 @@ export class Plotter {
     }
 
     /**
+     * Add a text line for the id passed
      *
      * @param id {String|Number}
      * @param plotText {PlotText}
      * @returns {Plotter}
      */
     addTextLine(id, plotText) {
-        if (this.textLines[id] === undefined) {
+        if (this.#isUndefined(this.textLines[id])) {
             this.textLines[id] = [];
         }
 
@@ -118,6 +126,7 @@ export class Plotter {
     }
 
     /**
+     * Step the values
      *
      * @param id {String|Number}
      * @param t {Number}
@@ -125,9 +134,10 @@ export class Plotter {
      * @param y {Number}
      */
     step(id, t, x, y) {
-        if (!this.map[id]) {
+        if (this.#isUndefined(this.map[id]) || this.#isUndefined(this.counts[id])) {
             throw new Error(`Plotter->step() -No id: ${id}`);
         }
+
         const idValues = this.map[id];
         const counts = this.counts[id];
         for (let i = 0; i < idValues.length; i++) {
@@ -154,12 +164,13 @@ export class Plotter {
     }
 
     /**
+     * Draws the graph
      *
      * @param id {String|Number}
      * @param time {Number}
      */
     draw(id, time) {
-        if (!this.map[id]) {
+        if (this.#isUndefined(this.map[id]) || this.#isUndefined(this.counts[id])) {
             throw new Error(`Plotter->draw() - No id: ${id}`);
         }
 
@@ -175,23 +186,36 @@ export class Plotter {
     }
 
     /**
+     * Draws the text and animates it if we need to
      *
      * @param id {String|Number}
-     * @param x {Number}
-     * @param y {Array<Number>}
+     * @param time {Number}
+     * @param x {Number} Animatable
+     * @param y {Array<Number>} Array of constant y values for each line
      */
-    drawText(id, x, y) {
+    drawText(id, time, x, y) {
         const fillStyle = this.rtPlot.context.fillStyle;
 
-        let lines = this.textLines[id];
+        const lines = this.textLines[id];
         for (let i = 0; i < lines.length; i++) {
-            const l = lines[i];
+            const line = lines[i];
 
-            this.rtPlot.context.fillStyle = l.color.toString();
+            this.rtPlot.context.fillStyle = line.color.toString();
 
-            l.x = x;
-            l.y = y[i];
-            l.draw(this.rtPlot.context);
+            if (this.rtPlot.mode === PlotMode.NORMAL) {
+                // Only translate x if we're in a normal plot
+                // 50; 50px margin from the right-align
+                // time * timeScale; keep translating the x-axis as 'time' increases
+                // i.e. we right align text and keep translating it as
+                // the x-axis moves
+                line.x = 50 + (time * PlotterConstants.TIME_SCALE);
+
+            } else {
+                line.x = x;
+            }
+
+            line.y = y[i];
+            line.draw(this.rtPlot.context);
         }
 
         this.rtPlot.context.fillStyle = fillStyle;
@@ -202,24 +226,36 @@ export class Plotter {
      * Making sure to update the counts of actual values in the array.
      *
      * @param id {String}
-     * @param xyValues {Array<Array>}
+     * @param xyValues {Array<Array<Number>>}
      */
     #shiftArray(id, xyValues) {
         const counts = this.counts[id];
-        if (counts.x > PlotterConstants.ARRAY_SIZE_LIMIT) {
+        if (counts.x > PlotterConstants.SAMPLE_POINTS_LIMIT) {
             const xValues = xyValues[0];
             for (let i = 0; i < (counts.x - 1); i++) {
                 xValues[i] = xValues[i + 1];
             }
+
             counts.x--;
         }
 
-        if (counts.y > PlotterConstants.ARRAY_SIZE_LIMIT) {
+        if (counts.y > PlotterConstants.SAMPLE_POINTS_LIMIT) {
             const yValues = xyValues[1];
             for (let i = 0; i < (counts.y - 1); i++) {
                 yValues[i] = yValues[i + 1];
             }
+
             counts.y--;
         }
+    }
+
+    /**
+     * Checks if 'value' is 'undefined'
+     *
+     * @param value {*}
+     * @returns {Boolean}
+     */
+    #isUndefined(value) {
+        return (value === undefined);
     }
 }

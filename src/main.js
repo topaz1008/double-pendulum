@@ -39,8 +39,8 @@ const options = {
 };
 
 // Initial conditions [theta1, theta2, omega1, omega2]
-const y0 = [3 * PI / 4, PI, 0, 0];
-const pendulum1 = new DoublePendulum(y0, context, FPS, Object.assign(options, {
+const y0_1 = [3 * PI / 4, PI, 0, 0];
+const pendulum1 = new DoublePendulum(y0_1, context, FPS, Object.assign(options, {
     rodColor: pendulum1Colors.rod,
     bobColor: pendulum1Colors.bob,
     pathColor: pendulum1Colors.path
@@ -72,16 +72,18 @@ const plotOptions = {
     pointColor: plotColors.point
 };
 
-const ID_AXIS = 0,
-    ID_P1 = 1,
-    ID_P2 = 2;
+const ID_AXIS_LABELS = 0, // Axis text labels
+    ID_P1_BOB1_XPOS = 1, // Pendulum 1 bob 1 x position
+    ID_P2_BOB1_XPOS = 2; // Pendulum 2 bob 1 x position
 
 const plotter = new Plotter(plotContext, plotOptions);
-plotter.add(ID_P1).add(ID_P2);
+plotter.registerId(ID_P1_BOB1_XPOS)
+    .registerId(ID_P2_BOB1_XPOS);
+// plotter.rtPlot.mode = PlotMode.PHASE;
 
-plotter.addTextLine(ID_AXIS, new PlotText('x = time',plotTextColor))
-    .addTextLine(ID_AXIS, new PlotText('y = pendulum1 bob1 x position', pendulum1Colors.path))
-    .addTextLine(ID_AXIS, new PlotText('y = pendulum2 bob1 x position', pendulum2Colors.path));
+plotter.addTextLine(ID_AXIS_LABELS, new PlotText('x = time', plotTextColor))
+    .addTextLine(ID_AXIS_LABELS, new PlotText('y = pendulum1 bob1 x position', pendulum1Colors.path))
+    .addTextLine(ID_AXIS_LABELS, new PlotText('y = pendulum2 bob1 x position', pendulum2Colors.path));
 
 function plotStep(t) {
     // Step plot
@@ -89,9 +91,9 @@ function plotStep(t) {
         b2 = pendulum2.position1(true);
 
     // noinspection JSSuspiciousNameCombination :)
-    plotter.step(ID_P1, t, t, b1.x);
+    plotter.step(ID_P1_BOB1_XPOS, t, t, b1.x);
     // noinspection JSSuspiciousNameCombination
-    plotter.step(ID_P2, t, t, b2.x);
+    plotter.step(ID_P2_BOB1_XPOS, t, t, b2.x);
 }
 
 function plotDraw(time) {
@@ -99,35 +101,14 @@ function plotDraw(time) {
     plotter.rtPlot.clear(time);
     plotter.rtPlot.drawAxis(VIEW_WIDTH + (time * PlotterConstants.TIME_SCALE), 300);
 
-    const textXposition = 50 + (time * PlotterConstants.TIME_SCALE);
-
-    plotter.drawText(ID_AXIS, textXposition, [50, 100, 150]);
+    plotter.drawText(ID_AXIS_LABELS, time, 0, [50, 100, 150]);
 
     plotter.rtPlot.setPlotColor(pendulum1Colors.path);
-    plotter.draw(ID_P1, time);
+    plotter.draw(ID_P1_BOB1_XPOS, time);
 
     plotter.rtPlot.setPlotColor(pendulum2Colors.path);
-    plotter.draw(ID_P2, time);
+    plotter.draw(ID_P2_BOB1_XPOS, time);
     plotter.rtPlot.restorePlotColor();
-}
-
-function createCanvas(id, width, height) {
-    const el = document.getElementById(id);
-    if (el !== null) {
-        return el.getContext('2d');
-    }
-
-    // Create a new canvas element.
-    const c = document.createElement('canvas'),
-        ctx = c.getContext('2d');
-
-    c.id = id;
-    c.width = width;
-    c.height = height;
-
-    document.body.appendChild(c);
-
-    return ctx;
 }
 
 document.addEventListener('keydown', (e) => {
@@ -165,4 +146,23 @@ function update() {
     if (!isPaused) plotStep(time);
 
     requestAnimationFrame(update);
+}
+
+function createCanvas(id, width, height) {
+    const el = document.getElementById(id);
+    if (el !== null) {
+        return el.getContext('2d');
+    }
+
+    // Create a new canvas element.
+    const c = document.createElement('canvas'),
+        ctx = c.getContext('2d');
+
+    c.id = id;
+    c.width = width;
+    c.height = height;
+
+    document.body.appendChild(c);
+
+    return ctx;
 }
