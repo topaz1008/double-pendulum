@@ -131,7 +131,7 @@ function update() {
     context.setTransform(1, 0, 0, 1, 0, 0);
     context.translate(HALF_WIDTH, HALF_HEIGHT);
     context.fillStyle = mainBackgroundColor;
-    context.clearRect(-HALF_WIDTH, -HALF_HEIGHT, VIEW_WIDTH, VIEW_HEIGHT);
+    // context.clearRect(-HALF_WIDTH, -HALF_HEIGHT, VIEW_WIDTH, VIEW_HEIGHT);
     context.fillRect(-HALF_WIDTH, -HALF_HEIGHT, VIEW_WIDTH, VIEW_HEIGHT);
 
     // Update the pendulums

@@ -182,15 +182,11 @@ export class DoublePendulum {
      * @returns {Object}
      */
     position1(raw) {
-        let l1Scaled = this.l1 * DoublePendulum.ROD_SCALE;
-        if (raw === true) {
-            // Don't do any scaling (used for the regular plots)
-            l1Scaled = this.l1;
-        }
+        const scale = ((raw === true) ? this.l1 : this.l1 * DoublePendulum.ROD_SCALE);
 
         return {
-            x: l1Scaled * Math.sin(this.y[THETA_1]),
-            y: l1Scaled * Math.cos(this.y[THETA_1])
+            x: scale * Math.sin(this.y[THETA_1]),
+            y: scale * Math.cos(this.y[THETA_1])
         };
     }
 
@@ -201,16 +197,12 @@ export class DoublePendulum {
      * @returns {Object}
      */
     position2(raw) {
-        let l1Scaled = this.l1 * DoublePendulum.ROD_SCALE,
-            l2Scaled = this.l2 * DoublePendulum.ROD_SCALE;
-        if (raw === true) {
-            l1Scaled = this.l1;
-            l2Scaled = this.l2;
-        }
+        const l1Scale = ((raw === true) ? this.l1 : this.l1 * DoublePendulum.ROD_SCALE);
+        const l2Scale = ((raw === true) ? this.l2 : this.l2 * DoublePendulum.ROD_SCALE);
 
         return {
-            x: l1Scaled * Math.sin(this.y[THETA_1]) + l2Scaled * Math.sin(this.y[THETA_2]),
-            y: l1Scaled * Math.cos(this.y[THETA_1]) + l2Scaled * Math.cos(this.y[THETA_2])
+            x: l1Scale * Math.sin(this.y[THETA_1]) + l2Scale * Math.sin(this.y[THETA_2]),
+            y: l1Scale * Math.cos(this.y[THETA_1]) + l2Scale * Math.cos(this.y[THETA_2])
         };
     }
 

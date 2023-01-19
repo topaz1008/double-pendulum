@@ -4,8 +4,9 @@ import { PlotMode, RealTimePlot } from './realtime-plot.js';
  * Various constants used in RealTimePlot and Plotter
  */
 export class PlotterConstants {
-    static TIME_SCALE = 2000;
-    static DATA_SCALE = 50;
+    static DATA_SCALE_X = 2000;
+    static TIME_SCALE = PlotterConstants.DATA_SCALE_X;
+    static DATA_SCALE_Y = 100;
 
     // How many sample points do we save?
     // Once 'limit' is reached the array space will be recycled
@@ -149,12 +150,12 @@ export class Plotter {
             // console.log(counts.x, counts.y);
             if (this.rtPlot.mode === PlotMode.NORMAL) {
                 xValues[counts.x] = t * PlotterConstants.TIME_SCALE;
-                yValues[counts.y] = y * PlotterConstants.DATA_SCALE;
+                yValues[counts.y] = y * PlotterConstants.DATA_SCALE_Y;
 
             } else {
                 // Phase plot
-                xValues[counts.x] = x * PlotterConstants.DATA_SCALE;
-                yValues[counts.y] = y * PlotterConstants.DATA_SCALE;
+                xValues[counts.x] = x * PlotterConstants.DATA_SCALE_X;
+                yValues[counts.y] = y * PlotterConstants.DATA_SCALE_Y;
             }
 
             // We just added a value to both array so update counts
@@ -194,7 +195,7 @@ export class Plotter {
      * @param y {Array<Number>} Array of constant y values for each line
      */
     drawText(id, time, x, y) {
-        const fillStyle = this.rtPlot.context.fillStyle;
+        const oldFillStyle = this.rtPlot.context.fillStyle;
 
         const lines = this.textLines[id];
         for (let i = 0; i < lines.length; i++) {
@@ -218,7 +219,7 @@ export class Plotter {
             line.draw(this.rtPlot.context);
         }
 
-        this.rtPlot.context.fillStyle = fillStyle;
+        this.rtPlot.context.fillStyle = oldFillStyle;
     }
 
     /**

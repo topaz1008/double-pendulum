@@ -1,6 +1,8 @@
 import { Color } from './color.js';
 import { PlotterConstants } from './plotter.js';
 
+const TWO_PI = 2 * Math.PI;
+
 const defaultOptions = {
     width: 1024,
     height: 768 / 2,
@@ -19,7 +21,7 @@ export class PlotMode {
 
 /**
  * This class handles plotting an (x, y) graph in real time.
- * one instantiated with the canvas context and the desired options
+ * once instantiated with the canvas context and the desired options
  * You can then call draw() each frame with 2 arrays
  * one for the x values and one for the y values.
  */
@@ -81,7 +83,7 @@ export class RealTimePlot {
         // Draw a circle on the last data point.
         this.context.fillStyle = this.pointColor.toString();
         this.context.beginPath();
-        this.context.arc(x[xl - 1], -y[yl - 1], 4, 0, 2 * Math.PI);
+        this.context.arc(x[xl - 1], -y[yl - 1], 4, 0, TWO_PI);
         this.context.closePath();
         this.context.fill();
 
@@ -92,7 +94,7 @@ export class RealTimePlot {
 
             for (let i = 0; i < xl; i++) {
                 this.context.moveTo(x[i], -y[i]);
-                this.context.arc(x[i], -y[i], 2, 0, 2 * Math.PI);
+                this.context.arc(x[i], -y[i], 1, 0, TWO_PI);
                 this.context.closePath();
             }
 
@@ -115,22 +117,15 @@ export class RealTimePlot {
         this.context.setTransform(1, 0, 0, 1, 0, 0);
         this.context.scale(this.scale, this.scale);
 
-        this.context.clearRect(0, 0, this.width, this.height);
+        // this.context.clearRect(0, 0, this.width, this.height);
         this.context.fillRect(0, 0, this.width, this.height);
 
         if (this.mode === PlotMode.NORMAL) {
-            this.context.translate((this.width / 2) - (time * PlotterConstants.TIME_SCALE), this.height / 2);
+            const x = (this.width / 2) - (time * PlotterConstants.TIME_SCALE);
+            this.context.translate(x, this.height / 2);
 
         } else {
-            this.translate();
-        }
-    }
-
-    /**
-     * Set canvas transforms.
-     */
-    translate() {
-        if (this.mode === PlotMode.PHASE) {
+            // Phase space
             this.context.translate(this.width / 2, this.height / 2);
         }
     }
