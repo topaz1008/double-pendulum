@@ -158,10 +158,6 @@ export class DoublePendulum {
     #drawPath() {
         const pathLength = this.path.length;
 
-        // Save current operation and change it
-        const prevOperation = this.context.globalCompositeOperation;
-        this.context.globalCompositeOperation = 'screen';
-
         this.context.lineWidth = 2;
 
         for (let i = 0; i < (pathLength - 1); i++) {
@@ -177,9 +173,6 @@ export class DoublePendulum {
             this.context.lineTo(p1.x, p1.y);
             this.context.stroke();
         }
-
-        // Restore previous operation
-        this.context.globalCompositeOperation = prevOperation;
     }
 
     /**
