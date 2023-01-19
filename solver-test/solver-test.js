@@ -37,7 +37,7 @@ function doPlot(problem, mode) {
     const context = createCanvas();
 
     // Solve and plot the results
-    const solver = new NDSolve(y, problem.f, STEP_SIZE);
+    const solver = new NDSolve(y, problem.f, STEP_SIZE, NDSolve.METHOD_RK4);
     plot = new Plot(context, plotOptions);
 
     plot.mode = mode || problem.plotMode;
@@ -57,7 +57,7 @@ function doPlot(problem, mode) {
             yValues.push(y[1]);
         }
 
-        solver.rk4Step(t);
+        solver.step(t);
 
         // Simple test for numerical instability, NaN !== NaN
         if (y[0] !== y[0] || isNaN(y[0])) {
