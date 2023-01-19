@@ -11,9 +11,9 @@ const DEFAULT_OPTIONS = {
     m1: 1, // Mass of bob 1 (top)
     l2: 1, // Length of rod 2 (bottom)
     m2: 1, // Mass of bob 2 (bottom)
-    rodColor: 'rgb(255,0,0)',
+    rodColor: 'rgb(0,204,0)',
     bobColor: 'rgb(255,255,255)',
-    pathColor: 'rgb(0,255,0)'
+    pathColor: 'rgb(0,204,0)'
 };
 
 // Named constants for easier array access
@@ -164,7 +164,7 @@ export class DoublePendulum {
             const p0 = this.path[i];
             const p1 = this.path[i + 1];
 
-            const c = this.pathColor.scale(i / pathLength );
+            const c = this.pathColor.scale(i / pathLength);
 
             this.context.strokeStyle = c.toString();
             this.context.beginPath();
