@@ -27,7 +27,6 @@ export class PlotMode {
  */
 export class RealTimePlot {
     /**
-     *
      * @param context {CanvasRenderingContext2D}
      * @param options {Object}
      */
@@ -52,7 +51,7 @@ export class RealTimePlot {
         this.backgroundColor = Color.fromString(options.backgroundColor);
 
         this.plotColor = Color.fromString(options.plotColor);
-        this.oldPlotColor = Color.fromString(options.plotColor);
+        this.prevPlotColor = Color.fromString(options.plotColor);
     }
 
     /**
@@ -92,26 +91,38 @@ export class RealTimePlot {
         if (this.drawPoints === true /*&& this.stepSize >= 1 / 100*/) {
             this.context.fillStyle = this.pointColor.toString();
             this.context.beginPath();
-
             for (let i = 0; i < xl; i++) {
                 this.context.moveTo(x[i], -y[i]);
                 this.context.arc(x[i], -y[i], 1, 0, TWO_PI);
-                this.context.closePath();
             }
 
+            this.context.closePath();
             this.context.fill();
         }
     }
 
+    /**
+     * Set the plot color
+     *
+     * @param colorString {String}
+     */
     setPlotColor(colorString) {
-        this.oldPlotColor = this.plotColor.clone();
+        this.prevPlotColor = this.plotColor.clone();
         this.plotColor = Color.fromString(colorString);
     }
 
+    /**
+     * Restores the previous color (before calling setPlotColor())
+     */
     restorePlotColor() {
-        this.plotColor = this.oldPlotColor.clone();
+        this.plotColor = this.prevPlotColor.clone();
     }
 
+    /**
+     * Clears the canvas
+     *
+     * @param time {Number}
+     */
     clear(time) {
         const prevFillStyle = this.context.fillStyle;
         this.context.fillStyle = this.backgroundColor.toString();

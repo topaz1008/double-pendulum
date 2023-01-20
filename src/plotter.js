@@ -1,9 +1,10 @@
 import { PlotMode, RealTimePlot } from './realtime-plot.js';
 
+/**
+ * This class holds scales for the x, y and t values.
+ */
 export class PlotDataScale {
     /**
-     * Holds scales for the x, y and t values.
-     *
      * @param xScale {Number=} The amount to scale the x values by
      * @param yScale {Number=} The amount to scale the y values by
      * @param timeScale {Number=} If not specified xScale will be used
@@ -76,20 +77,20 @@ export class Plotter {
     // so everything that is being discarded does so out of the viewport.
     static SAMPLE_POINTS_LIMIT = 1000;
 
-    map = {};
-    counts = {};
-    textLines = {};
     options;
-    rtPlot;
-    dataScale;
+    rtPlot; // TODO: Encapsulate this better
 
     // Private
+    #values = {};
+    #counts = {};
+    #textLines = {};
+    #dataScale = null;
     #mode = PlotMode.NORMAL;
 
     constructor(context, options) {
         const opts = Object.assign(DEFAULT_OPTIONS, options || {});
         this.options = opts;
-        this.dataScale = new PlotDataScale(2000, 100);
+        this.#dataScale = new PlotDataScale(2000, 100);
         this.rtPlot = new RealTimePlot(context, opts);
     }
 
@@ -100,18 +101,18 @@ export class Plotter {
      * @returns {Plotter}
      */
     registerId(id) {
-        if (this.#isUndefined(this.map[id])) {
+        if (this.#isUndefined(this.#values[id])) {
             // Use constant size arrays for efficiency
-            this.map[id] = [
+            this.#values[id] = [
                 new Array(Plotter.SAMPLE_POINTS_LIMIT), // xValues
                 new Array(Plotter.SAMPLE_POINTS_LIMIT)  // yValues
             ];
         }
-        if (this.#isUndefined(this.counts[id])) {
+        if (this.#isUndefined(this.#counts[id])) {
             // Since we use constant size arrays we need
             // to keep track of how many values we actually hold for each array.
             // This will be used to index the next element in its place
-            this.counts[id] = { x: 0, y: 0 };
+            this.#counts[id] = { x: 0, y: 0 };
         }
 
         return this;
@@ -122,7 +123,7 @@ export class Plotter {
      * @param s {PlotDataScale}
      */
     setDataScale(s) {
-        this.dataScale = this.rtPlot.dataScale = s;
+        this.#dataScale = this.rtPlot.dataScale = s;
     }
 
     /**
@@ -133,11 +134,11 @@ export class Plotter {
      * @returns {Plotter}
      */
     addTextLine(id, plotText) {
-        if (this.#isUndefined(this.textLines[id])) {
-            this.textLines[id] = [];
+        if (this.#isUndefined(this.#textLines[id])) {
+            this.#textLines[id] = [];
         }
 
-        this.textLines[id].push(plotText);
+        this.#textLines[id].push(plotText);
 
         return this;
     }
@@ -151,12 +152,12 @@ export class Plotter {
      * @param y {Number}
      */
     step(id, t, x, y) {
-        if (this.#isUndefined(this.map[id]) || this.#isUndefined(this.counts[id])) {
+        if (this.#isUndefined(this.#values[id]) || this.#isUndefined(this.#counts[id])) {
             throw new Error(`Plotter->step() - No id: ${id}`);
         }
 
-        const idValues = this.map[id];
-        const counts = this.counts[id];
+        const idValues = this.#values[id];
+        const counts = this.#counts[id];
         for (let i = 0; i < idValues.length; i++) {
             const xValues = idValues[0];
             const yValues = idValues[1];
@@ -165,13 +166,13 @@ export class Plotter {
 
             // console.log(counts.x, counts.y);
             if (this.rtPlot.mode === PlotMode.NORMAL) {
-                xValues[counts.x] = t * this.dataScale.time;
-                yValues[counts.y] = y * this.dataScale.y;
+                xValues[counts.x] = t * this.#dataScale.time;
+                yValues[counts.y] = y * this.#dataScale.y;
 
             } else {
                 // Phase plot
-                xValues[counts.x] = x * this.dataScale.x;
-                yValues[counts.y] = y * this.dataScale.y;
+                xValues[counts.x] = x * this.#dataScale.x;
+                yValues[counts.y] = y * this.#dataScale.y;
             }
 
             // We just added a value to both array so update counts
@@ -187,12 +188,12 @@ export class Plotter {
      * @param time {Number}
      */
     draw(id, time) {
-        if (this.#isUndefined(this.map[id]) || this.#isUndefined(this.counts[id])) {
+        if (this.#isUndefined(this.#values[id]) || this.#isUndefined(this.#counts[id])) {
             throw new Error(`Plotter->draw() - No id: ${id}`);
         }
 
-        const idValues = this.map[id];
-        const counts = this.counts[id];
+        const idValues = this.#values[id];
+        const counts = this.#counts[id];
         for (let i = 0; i < idValues.length; i++) {
             const xValues = idValues[0];
             const yValues = idValues[1];
@@ -206,7 +207,7 @@ export class Plotter {
      * @param time {Number}
      */
     drawAxis(time) {
-        this.rtPlot.drawAxis(this.rtPlot.width + (time * this.dataScale.time), 300);
+        this.rtPlot.drawAxis(this.rtPlot.width + (time * this.#dataScale.time), 300);
     }
 
     /**
@@ -220,7 +221,7 @@ export class Plotter {
     drawText(id, time, x, y) {
         const prevFillStyle = this.rtPlot.context.fillStyle;
 
-        const lines = this.textLines[id];
+        const lines = this.#textLines[id];
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
 
@@ -232,7 +233,7 @@ export class Plotter {
                 // time * timeScale; keep translating the x-axis as 'time' increases
                 // i.e. we right align text and keep translating it as
                 // the x-axis moves
-                line.x = 50 + (time * this.dataScale.time);
+                line.x = 50 + (time * this.#dataScale.time);
 
             } else {
                 line.x = x;
@@ -253,8 +254,8 @@ export class Plotter {
      * @param xyValues {Array<Array<Number>>}
      */
     #shiftArray(id, xyValues) {
-        const counts = this.counts[id];
-        if (counts.x > Plotter.SAMPLE_POINTS_LIMIT) {
+        const counts = this.#counts[id];
+        if (counts.x >= Plotter.SAMPLE_POINTS_LIMIT) {
             const xValues = xyValues[0];
             for (let i = 0; i < (counts.x - 1); i++) {
                 xValues[i] = xValues[i + 1];
@@ -263,7 +264,7 @@ export class Plotter {
             counts.x--;
         }
 
-        if (counts.y > Plotter.SAMPLE_POINTS_LIMIT) {
+        if (counts.y >= Plotter.SAMPLE_POINTS_LIMIT) {
             const yValues = xyValues[1];
             for (let i = 0; i < (counts.y - 1); i++) {
                 yValues[i] = yValues[i + 1];
