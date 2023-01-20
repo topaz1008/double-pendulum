@@ -1,5 +1,5 @@
 import { Color } from './color.js';
-import { PlotterConstants } from './plotter.js';
+import { PlotDataScale } from './plotter.js';
 
 const TWO_PI = 2 * Math.PI;
 
@@ -45,6 +45,7 @@ export class RealTimePlot {
         this.drawPoints = options.drawPoints;
 
         this.scale = options.scale;
+        this.dataScale = new PlotDataScale();
         this.mode = options.mode || PlotMode.NORMAL;
         this.axisColor = Color.fromString(options.axisColor);
         this.pointColor = Color.fromString(options.pointColor);
@@ -112,6 +113,7 @@ export class RealTimePlot {
     }
 
     clear(time) {
+        const prevFillStyle = this.context.fillStyle;
         this.context.fillStyle = this.backgroundColor.toString();
 
         this.context.setTransform(1, 0, 0, 1, 0, 0);
@@ -121,31 +123,35 @@ export class RealTimePlot {
         this.context.fillRect(0, 0, this.width, this.height);
 
         if (this.mode === PlotMode.NORMAL) {
-            const x = (this.width / 2) - (time * PlotterConstants.TIME_SCALE);
+            const x = (this.width / 2) - (time * this.dataScale.time);
             this.context.translate(x, this.height / 2);
 
         } else {
             // Phase space
             this.context.translate(this.width / 2, this.height / 2);
         }
+
+        this.context.fillStyle = prevFillStyle;
     }
 
     /**
      * Draw the axis.
      *
-     * @param [xMax] {Number}
-     * @param [yMax] {Number}
+     * @param xMax {Number=}
+     * @param yMax {Number=}
      */
     drawAxis(xMax, yMax) {
         const X_MAX = xMax || 200,
             Y_MAX = yMax || 100;
 
+        const prevStrokeStyle = this.context.strokeStyle;
+
         this.context.lineWidth = 1;
         this.context.strokeStyle = this.axisColor.toString();
         this.context.beginPath();
 
-        // this.context.moveTo(0, -Y_MAX);
-        // this.context.lineTo(0, Y_MAX);
+        this.context.moveTo(0, -Y_MAX);
+        this.context.lineTo(0, Y_MAX);
         this.context.moveTo(-X_MAX, 0);
         this.context.lineTo(X_MAX, 0);
         // this.context.moveTo(-X_MAX, -100);
@@ -155,5 +161,7 @@ export class RealTimePlot {
 
         this.context.closePath();
         this.context.stroke();
+
+        this.context.strokeStyle = prevStrokeStyle;
     }
 }

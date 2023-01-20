@@ -1,6 +1,6 @@
 import { DoublePendulum } from './double-pendulum.js';
 import { PlotMode } from './realtime-plot.js';
-import { Plotter, PlotterConstants, PlotText } from './plotter.js';
+import { PlotDataScale, Plotter, PlotText } from './plotter.js';
 import {
     mainBackgroundColor,
     pendulum1Colors,
@@ -28,7 +28,7 @@ let time = 0,
 const context = createCanvas('main', VIEW_WIDTH, VIEW_HEIGHT);
 const plotContext = createCanvas('plot', VIEW_WIDTH, HALF_HEIGHT);
 
-const options = {
+const pendulumOptions = {
     gravity: 9.81,
     origin: { x: 0, y: 0 },
     stepSize: STEP_SIZE,
@@ -40,7 +40,7 @@ const options = {
 
 // Initial conditions [theta1, theta2, omega1, omega2]
 const y0_1 = [3 * PI / 4, PI, 0, 0];
-const pendulum1 = new DoublePendulum(y0_1, context, FPS, Object.assign(options, {
+const pendulum1 = new DoublePendulum(y0_1, context, FPS, Object.assign(pendulumOptions, {
     rodColor: pendulum1Colors.rod,
     bobColor: pendulum1Colors.bob,
     pathColor: pendulum1Colors.path
@@ -51,7 +51,7 @@ const pendulum1 = new DoublePendulum(y0_1, context, FPS, Object.assign(options, 
 // This is what makes this system chaotic.
 const EPSILON = 1 / 10000;
 const y0_2 = [(3 * PI / 4) + EPSILON, PI, 0, 0];
-const pendulum2 = new DoublePendulum(y0_2, context, FPS, Object.assign(options, {
+const pendulum2 = new DoublePendulum(y0_2, context, FPS, Object.assign(pendulumOptions, {
     rodColor: pendulum2Colors.rod,
     bobColor: pendulum2Colors.bob,
     pathColor: pendulum2Colors.path
@@ -85,9 +85,12 @@ plotter.addTextLine(ID_AXIS_LABELS, new PlotText('x = time', plotTextColor))
     .addTextLine(ID_AXIS_LABELS, new PlotText('y = pendulum1 bob1 x position', pendulum1Colors.path))
     .addTextLine(ID_AXIS_LABELS, new PlotText('y = pendulum2 bob1 x position', pendulum2Colors.path));
 
+plotter.setDataScale(new PlotDataScale(2000, 100));
+
 function plotStep(t) {
     // Step plot
     const b1 = pendulum1.position1(true),
+        // omega1 = pendulum1.omega1,
         b2 = pendulum2.position1(true);
 
     // noinspection JSSuspiciousNameCombination :)
@@ -99,7 +102,7 @@ function plotStep(t) {
 function plotDraw(time) {
     // Draw plot
     plotter.rtPlot.clear(time);
-    plotter.rtPlot.drawAxis(VIEW_WIDTH + (time * PlotterConstants.TIME_SCALE), 300);
+    plotter.drawAxis(time);
 
     plotter.drawText(ID_AXIS_LABELS, time, 0, [50, 100, 150]);
 
@@ -118,10 +121,10 @@ document.addEventListener('keydown', (e) => {
 
 }, false);
 
-requestAnimationFrame(update);
+update();
 
 /**
- * Update loop
+ * Main update loop
  */
 function update() {
     if (!isPaused) {
@@ -131,7 +134,7 @@ function update() {
     context.setTransform(1, 0, 0, 1, 0, 0);
     context.translate(HALF_WIDTH, HALF_HEIGHT);
     context.fillStyle = mainBackgroundColor;
-    // context.clearRect(-HALF_WIDTH, -HALF_HEIGHT, VIEW_WIDTH, VIEW_HEIGHT);
+    context.clearRect(-HALF_WIDTH, -HALF_HEIGHT, VIEW_WIDTH, VIEW_HEIGHT);
     context.fillRect(-HALF_WIDTH, -HALF_HEIGHT, VIEW_WIDTH, VIEW_HEIGHT);
 
     // Update the pendulums
