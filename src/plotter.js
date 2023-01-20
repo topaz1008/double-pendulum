@@ -1,5 +1,4 @@
 import { PlotMode, RealTimePlot } from './realtime-plot.js';
-import { pendulum1Colors } from './color-constants.js';
 
 /**
  * This class holds scales for the x, y and t values.
@@ -18,7 +17,7 @@ export class PlotDataScale {
 }
 
 /**
- * Represents a line of text with its own position and color
+ * Represents a line of text with its own position and color.
  */
 export class PlotText {
     text;
@@ -68,13 +67,13 @@ const DEFAULT_OPTIONS = {
  * an 'id' consists of an array, with 2 nested arrays inside it.
  * one for the x values and one for the y values.
  * This class will step all values each frame and then draw all added id(s)
- * It is a wrapper around RealTimePlot
+ * It is a wrapper around RealTimePlot.
  */
 export class Plotter {
     options = null;
-    rtPlot = null;
 
     // Private
+    #rtPlot = null;
     #values = {};
     #counts = {};
     #textLines = {};
@@ -94,11 +93,11 @@ export class Plotter {
         const opts = Object.assign(DEFAULT_OPTIONS, options || {});
         this.options = opts;
         this.#dataScale = new PlotDataScale();
-        this.rtPlot = new RealTimePlot(context, opts);
+        this.#rtPlot = new RealTimePlot(context, opts);
     }
 
     /**
-     * Register a new id
+     * Register a new id.
      *
      * @param id {String|Number}
      * @returns {Plotter}
@@ -123,27 +122,36 @@ export class Plotter {
 
     /**
      * @param s {PlotDataScale}
+     * @returns {Plotter}
      */
     setDataScale(s) {
-        this.#dataScale = this.rtPlot.dataScale = s;
+        this.#dataScale = this.#rtPlot.dataScale = s;
+
+        return this;
     }
 
     /**
      * @param limit {Number}
+     * @returns {Plotter}
      */
     setSamplePointLimit(limit) {
         this.#samplePointLimit = limit;
+
+        return this;
     }
 
     /**
      * @param mode {PlotMode|Number}
+     * @returns {Plotter}
      */
     setPlotMode(mode) {
-        this.#mode = this.rtPlot.mode = mode;
+        this.#mode = this.#rtPlot.mode = mode;
+
+        return this;
     }
 
     /**
-     * Add a text line for the id passed
+     * Add a text line for the id passed.
      *
      * @param id {String|Number}
      * @param plotText {PlotText}
@@ -160,14 +168,13 @@ export class Plotter {
     }
 
     /**
-     * Step the values
+     * Step the values.
      *
      * @param id {String|Number}
-     * @param t {Number}
      * @param x {Number}
      * @param y {Number}
      */
-    step(id, t, x, y) {
+    step(id, x, y) {
         if (this.#isUndefined(this.#values[id]) || this.#isUndefined(this.#counts[id])) {
             throw new Error(`Plotter->step() - No id: ${id}`);
         }
@@ -180,9 +187,8 @@ export class Plotter {
 
             this.#shiftArray(id, [xValues, yValues]);
 
-            // console.log(counts.x, counts.y);
             if (this.#mode === PlotMode.NORMAL) {
-                xValues[counts.x] = t * this.#dataScale.time;
+                xValues[counts.x] = x * this.#dataScale.time;
                 yValues[counts.y] = y * this.#dataScale.y;
 
             } else {
@@ -198,12 +204,11 @@ export class Plotter {
     }
 
     /**
-     * Draws the graph
+     * Draws the graph.
      *
      * @param id {String|Number}
-     * @param time {Number}
      */
-    draw(id, time) {
+    draw(id) {
         if (this.#isUndefined(this.#values[id]) || this.#isUndefined(this.#counts[id])) {
             throw new Error(`Plotter->draw() - No id: ${id}`);
         }
@@ -213,33 +218,32 @@ export class Plotter {
         for (let i = 0; i < idValues.length; i++) {
             const xValues = idValues[0];
             const yValues = idValues[1];
-            this.rtPlot.draw(xValues, counts.x, yValues, counts.y);
+            this.#rtPlot.draw(xValues, counts.x, yValues, counts.y);
         }
     }
 
     /**
-     * Draws all id(s) current registered.
+     * Draws the graphs for id(s) currently registered.
      *
-     * @param time {Number}
      * @param colors {Array<String>}
      */
-    drawAll(time, colors) {
+    drawAll(colors) {
         let i = 0;
         for (const id in this.#values) {
-            this.rtPlot.setPlotColor(colors[i++]);
-            this.draw(id, time);
+            this.#rtPlot.setPlotColor(colors[i++]);
+            this.draw(id);
 
-            this.rtPlot.restorePlotColor();
+            this.#rtPlot.restorePlotColor();
         }
     }
 
     /**
-     * Clears the canvas
+     * Clears the canvas.
      *
      * @param time {Number}
      */
     clear(time) {
-        this.rtPlot.clear(time);
+        this.#rtPlot.clear(time);
     }
 
     /**
@@ -248,11 +252,11 @@ export class Plotter {
      * @param time {Number}
      */
     drawAxis(time) {
-        this.rtPlot.drawAxis(this.rtPlot.width + (time * this.#dataScale.time), 300);
+        this.#rtPlot.drawAxis(this.#rtPlot.width + (time * this.#dataScale.time), 300);
     }
 
     /**
-     * Draws the text and animates it if we need to
+     * Draws the text and animates it if we need to.
      *
      * @param id {String|Number}
      * @param time {Number}
@@ -260,13 +264,13 @@ export class Plotter {
      * @param y {Array<Number>} Array of constant y values for each line
      */
     drawText(id, time, x, y) {
-        const prevFillStyle = this.rtPlot.context.fillStyle;
+        const prevFillStyle = this.#rtPlot.context.fillStyle;
 
         const lines = this.#textLines[id];
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
 
-            this.rtPlot.context.fillStyle = line.color.toString();
+            this.#rtPlot.context.fillStyle = line.color.toString();
 
             if (this.#mode === PlotMode.NORMAL) {
                 // Only translate x if we're in a normal plot
@@ -281,10 +285,10 @@ export class Plotter {
             }
 
             line.y = y[i];
-            line.draw(this.rtPlot.context);
+            line.draw(this.#rtPlot.context);
         }
 
-        this.rtPlot.context.fillStyle = prevFillStyle;
+        this.#rtPlot.context.fillStyle = prevFillStyle;
     }
 
     /**
@@ -316,7 +320,7 @@ export class Plotter {
     }
 
     /**
-     * Checks if 'value' is 'undefined'
+     * Checks if 'value' is 'undefined'.
      *
      * @param value {*}
      * @returns {Boolean}

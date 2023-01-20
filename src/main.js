@@ -84,20 +84,20 @@ plotter.addTextLine(ID_AXIS_LABELS, new PlotText('x = time', plotTextColor))
     .addTextLine(ID_AXIS_LABELS, new PlotText('y = pendulum1 bob1 x position', pendulum1Colors.path))
     .addTextLine(ID_AXIS_LABELS, new PlotText('y = pendulum2 bob1 x position', pendulum2Colors.path));
 
-plotter.setDataScale(new PlotDataScale(2000, 100));
-plotter.setPlotMode(PlotMode.NORMAL);
-plotter.setSamplePointLimit(500);
+plotter.setDataScale(new PlotDataScale(2000, 100))
+    .setPlotMode(PlotMode.NORMAL)
+    .setSamplePointLimit(500);
 
-function plotStep(t) {
+function plotStep(time) {
     // Step plot
     const b1 = pendulum1.position1(true),
         // omega1 = pendulum1.omega1,
         b2 = pendulum2.position1(true);
 
     // noinspection JSSuspiciousNameCombination :)
-    plotter.step(ID_P1_BOB1_XPOS, t, t, b1.x);
+    plotter.step(ID_P1_BOB1_XPOS, time, b1.x);
     // noinspection JSSuspiciousNameCombination
-    plotter.step(ID_P2_BOB1_XPOS, t, t, b2.x);
+    plotter.step(ID_P2_BOB1_XPOS, time, b2.x);
 }
 
 function plotDraw(time) {
@@ -106,7 +106,7 @@ function plotDraw(time) {
     plotter.drawAxis(time);
     plotter.drawText(ID_AXIS_LABELS, time, 0, [50, 100, 150]);
 
-    plotter.drawAll(time, [pendulum1Colors.path, pendulum2Colors.path]);
+    plotter.drawAll([pendulum1Colors.path, pendulum2Colors.path]);
 }
 
 document.addEventListener('keydown', (e) => {
