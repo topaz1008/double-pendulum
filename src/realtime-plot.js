@@ -59,10 +59,10 @@ export class RealTimePlot {
      * Draw a simple plot.
      * Flips the y values so positive is up.
      *
-     * @param x {Array<Number>}
-     * @param xl {Number}
-     * @param y {Array<Number>}
-     * @param yl {Number}
+     * @param x {Array<Number>} x values array
+     * @param xl {Number} length of x values array
+     * @param y {Array<Number>} y values array
+     * @param yl {Number} length of y values array
      */
     draw(x, xl, y, yl) {
         if (xl !== yl) {

@@ -2,15 +2,15 @@
 export const mainBackgroundColor = 'rgb(0,0,0)';
 
 export const pendulum1Colors = {
-    rod: 'rgb(0,0,204)',
+    rod: 'rgb(0,0,255)',
     bob: 'rgb(255,255,255)',
-    path: 'rgb(0,0,204)'
+    path: 'rgb(0,0,255)'
 };
 
 export const pendulum2Colors = {
-    rod: 'rgb(0,204,0)',
+    rod: 'rgb(0,255,0)',
     bob: 'rgb(255,255,255)',
-    path: 'rgb(0,204,0)'
+    path: 'rgb(0,255,0)'
 };
 
 // Bottom plot colors

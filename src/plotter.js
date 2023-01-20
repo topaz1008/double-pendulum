@@ -17,23 +17,26 @@ export class PlotDataScale {
 }
 
 /**
- * Represents a line of text with its own position and color.
+ * Represents a plot label with a line of text and its own position and color.
  */
-export class PlotText {
+export class PlotLabel {
     text;
     x; y;
+    initialX; initialY;
     color;
-    font = '35px serif';
+    font = '30px serif';
 
     /**
      * @param text {String}
+     * @param x {Number=}
+     * @param y {Number=}
      * @param color {String=}
      */
-    constructor(text, color) {
+    constructor(text, x, y, color) {
         this.text = text;
         this.color = color || 'rgb(255,255,255)';
-        this.x = 0;
-        this.y = 0;
+        this.initialX = this.x = x || 0;
+        this.initialY = this.y = y || 0;
     }
 
     draw(context) {
@@ -76,7 +79,7 @@ export class Plotter {
     #rtPlot = null;
     #values = {};
     #counts = {};
-    #textLines = {};
+    #plotLabels = {};
     #dataScale = null;
     #mode = PlotMode.NORMAL;
 
@@ -96,29 +99,9 @@ export class Plotter {
         this.#rtPlot = new RealTimePlot(context, opts);
     }
 
-    /**
-     * Register a new id.
-     *
-     * @param id {String|Number}
-     * @returns {Plotter}
-     */
-    registerId(id) {
-        if (this.#isUndefined(this.#values[id])) {
-            // Use constant size arrays for efficiency
-            this.#values[id] = [
-                new Array(this.#samplePointLimit), // xValues
-                new Array(this.#samplePointLimit)  // yValues
-            ];
-        }
-        if (this.#isUndefined(this.#counts[id])) {
-            // Since we use constant size arrays we need
-            // to keep track of how many values we actually hold for each array.
-            // This will be used to index the next element in its place
-            this.#counts[id] = { x: 0, y: 0 };
-        }
-
-        return this;
-    }
+    //////////////////////
+    // Public methods  //
+    //////////////////////
 
     /**
      * @param s {PlotDataScale}
@@ -154,15 +137,15 @@ export class Plotter {
      * Add a text line for the id passed.
      *
      * @param id {String|Number}
-     * @param plotText {PlotText}
+     * @param plotText {PlotLabel}
      * @returns {Plotter}
      */
-    addTextLine(id, plotText) {
-        if (this.#isUndefined(this.#textLines[id])) {
-            this.#textLines[id] = [];
+    addLabel(id, plotText) {
+        if (this.#isUndefined(this.#plotLabels[id])) {
+            this.#plotLabels[id] = [];
         }
 
-        this.#textLines[id].push(plotText);
+        this.#plotLabels[id].push(plotText);
 
         return this;
     }
@@ -175,32 +158,30 @@ export class Plotter {
      * @param y {Number}
      */
     step(id, x, y) {
-        if (this.#isUndefined(this.#values[id]) || this.#isUndefined(this.#counts[id])) {
-            throw new Error(`Plotter->step() - No id: ${id}`);
+        if (!this.#hasId(id)) {
+            this.#registerId(id);
         }
 
         const idValues = this.#values[id];
         const counts = this.#counts[id];
-        for (let i = 0; i < idValues.length; i++) {
-            const xValues = idValues[0];
-            const yValues = idValues[1];
+        const xValues = idValues[0];
+        const yValues = idValues[1];
 
-            this.#shiftArray(id, [xValues, yValues]);
+        this.#shiftArray(id, [xValues, yValues]);
 
-            if (this.#mode === PlotMode.NORMAL) {
-                xValues[counts.x] = x * this.#dataScale.time;
-                yValues[counts.y] = y * this.#dataScale.y;
+        if (this.#mode === PlotMode.NORMAL) {
+            xValues[counts.x] = x * this.#dataScale.time;
 
-            } else {
-                // Phase plot
-                xValues[counts.x] = x * this.#dataScale.x;
-                yValues[counts.y] = y * this.#dataScale.y;
-            }
-
-            // We just added a value to both array so update counts
-            counts.x++;
-            counts.y++;
+        } else {
+            // Phase space plot
+            xValues[counts.x] = x * this.#dataScale.x;
         }
+
+        yValues[counts.y] = y * this.#dataScale.y;
+
+        // We just added a value to both array so update counts
+        counts.x++;
+        counts.y++;
     }
 
     /**
@@ -210,16 +191,15 @@ export class Plotter {
      */
     draw(id) {
         if (this.#isUndefined(this.#values[id]) || this.#isUndefined(this.#counts[id])) {
-            throw new Error(`Plotter->draw() - No id: ${id}`);
+            throw new Error(`Plotter->draw(): No id: ${id}; step() must be called before draw()`);
         }
 
         const idValues = this.#values[id];
         const counts = this.#counts[id];
-        for (let i = 0; i < idValues.length; i++) {
-            const xValues = idValues[0];
-            const yValues = idValues[1];
-            this.#rtPlot.draw(xValues, counts.x, yValues, counts.y);
-        }
+        const xValues = idValues[0];
+        const yValues = idValues[1];
+
+        this.#rtPlot.draw(xValues, counts.x, yValues, counts.y);
     }
 
     /**
@@ -249,10 +229,10 @@ export class Plotter {
     /**
      * Draws the axis.
      *
-     * @param time {Number}
+     * @param time {Number=}
      */
     drawAxis(time) {
-        this.#rtPlot.drawAxis(this.#rtPlot.width + (time * this.#dataScale.time), 300);
+        this.#rtPlot.drawAxis(this.#rtPlot.width + ((time ? time : 0) * this.#dataScale.time), 300);
     }
 
     /**
@@ -260,36 +240,41 @@ export class Plotter {
      *
      * @param id {String|Number}
      * @param time {Number}
-     * @param x {Number} Animatable
-     * @param y {Array<Number>} Array of constant y values for each line
      */
-    drawText(id, time, x, y) {
+    drawLabels(id, time) {
         const prevFillStyle = this.#rtPlot.context.fillStyle;
 
-        const lines = this.#textLines[id];
-        for (let i = 0; i < lines.length; i++) {
-            const line = lines[i];
+        const labels = this.#plotLabels[id];
+        for (let i = 0; i < labels.length; i++) {
+            const label = labels[i];
 
-            this.#rtPlot.context.fillStyle = line.color.toString();
+            this.#rtPlot.context.fillStyle = label.color.toString();
 
             if (this.#mode === PlotMode.NORMAL) {
                 // Only translate x if we're in a normal plot
-                // 50; 50px margin from the right-align
+                // 100; 100px margin from the right-align
                 // time * timeScale; keep translating the x-axis as 'time' increases
                 // i.e. we right align text and keep translating it as
                 // the x-axis moves
-                line.x = 50 + (time * this.#dataScale.time);
+                label.x = label.initialX + (time * this.#dataScale.time);
 
             } else {
-                line.x = x;
+                // Phase space
+                //label.x = x;
+                // TODO: implement
+                console.log('// TODO: implement');
             }
 
-            line.y = y[i];
-            line.draw(this.#rtPlot.context);
+            // label.y = y[i];
+            label.draw(this.#rtPlot.context);
         }
 
         this.#rtPlot.context.fillStyle = prevFillStyle;
     }
+
+    //////////////////////
+    // Private methods  //
+    //////////////////////
 
     /**
      * This function will shift all values in the arrays one index backwards.
@@ -317,6 +302,38 @@ export class Plotter {
 
             counts.y--;
         }
+    }
+
+    /**
+     * Register a new id.
+     *
+     * @param id {String|Number}
+     * @returns {Plotter}
+     */
+    #registerId(id) {
+        if (this.#isUndefined(this.#values[id])) {
+            // Use constant size arrays for efficiency
+            this.#values[id] = [
+                new Array(this.#samplePointLimit), // xValues
+                new Array(this.#samplePointLimit)  // yValues
+            ];
+        }
+        if (this.#isUndefined(this.#counts[id])) {
+            // Since we use constant size arrays we need
+            // to keep track of how many values we actually hold for each array.
+            // This will be used to index the next element in its place
+            this.#counts[id] = { x: 0, y: 0 };
+        }
+
+        return this;
+    }
+
+    /**
+     * @param id {String|Number}
+     * @returns {Boolean}
+     */
+    #hasId(id) {
+        return (this.#isUndefined(this.#values[id]) === false);
     }
 
     /**
