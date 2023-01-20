@@ -79,13 +79,14 @@ const ID_AXIS_LABELS = 0, // Axis text labels
 const plotter = new Plotter(plotContext, plotOptions);
 plotter.registerId(ID_P1_BOB1_XPOS)
     .registerId(ID_P2_BOB1_XPOS);
-// plotter.rtPlot.mode = PlotMode.PHASE;
 
 plotter.addTextLine(ID_AXIS_LABELS, new PlotText('x = time', plotTextColor))
     .addTextLine(ID_AXIS_LABELS, new PlotText('y = pendulum1 bob1 x position', pendulum1Colors.path))
     .addTextLine(ID_AXIS_LABELS, new PlotText('y = pendulum2 bob1 x position', pendulum2Colors.path));
 
 plotter.setDataScale(new PlotDataScale(2000, 100));
+plotter.setSamplePointLimit(500);
+plotter.setPlotMode(PlotMode.NORMAL);
 
 function plotStep(t) {
     // Step plot

@@ -70,15 +70,8 @@ const DEFAULT_OPTIONS = {
  * It is a wrapper around RealTimePlot
  */
 export class Plotter {
-    // How many sample points do we save?
-    // Once 'limit' is reached the array space will be recycled
-    // This could be increased/decreased depending on the width
-    // of the canvas; 1000 seems to work for a width of 768
-    // so everything that is being discarded does so out of the viewport.
-    static SAMPLE_POINTS_LIMIT = 1000;
-
-    options;
-    rtPlot; // TODO: Encapsulate this better
+    options = null;
+    rtPlot = null; // TODO: Encapsulate this better
 
     // Private
     #values = {};
@@ -87,10 +80,19 @@ export class Plotter {
     #dataScale = null;
     #mode = PlotMode.NORMAL;
 
+    // How many sample points do we save?
+    // Once 'limit' is reached the array space will be recycled
+    // This could be increased/decreased depending on the width
+    // of the canvas; 500 seems to work for a width of 384 (we only draw on have the canvas)
+    // so everything that is being discarded does so out of the viewport.
+    // When plot mode is set to PlotMode.PHASE then more values will be required
+    // to maintain a path that is long enough (since nothing leaves the viewport)
+    #samplePointLimit = 500;
+
     constructor(context, options) {
         const opts = Object.assign(DEFAULT_OPTIONS, options || {});
         this.options = opts;
-        this.#dataScale = new PlotDataScale(2000, 100);
+        this.#dataScale = new PlotDataScale();
         this.rtPlot = new RealTimePlot(context, opts);
     }
 
@@ -104,8 +106,8 @@ export class Plotter {
         if (this.#isUndefined(this.#values[id])) {
             // Use constant size arrays for efficiency
             this.#values[id] = [
-                new Array(Plotter.SAMPLE_POINTS_LIMIT), // xValues
-                new Array(Plotter.SAMPLE_POINTS_LIMIT)  // yValues
+                new Array(this.#samplePointLimit), // xValues
+                new Array(this.#samplePointLimit)  // yValues
             ];
         }
         if (this.#isUndefined(this.#counts[id])) {
@@ -119,11 +121,24 @@ export class Plotter {
     }
 
     /**
-     *
      * @param s {PlotDataScale}
      */
     setDataScale(s) {
         this.#dataScale = this.rtPlot.dataScale = s;
+    }
+
+    /**
+     * @param limit {Number}
+     */
+    setSamplePointLimit(limit) {
+        this.#samplePointLimit = limit;
+    }
+
+    /**
+     * @param mode {PlotMode|Number}
+     */
+    setPlotMode(mode) {
+        this.#mode = this.rtPlot.mode = mode;
     }
 
     /**
@@ -255,7 +270,7 @@ export class Plotter {
      */
     #shiftArray(id, xyValues) {
         const counts = this.#counts[id];
-        if (counts.x >= Plotter.SAMPLE_POINTS_LIMIT) {
+        if (counts.x >= this.#samplePointLimit) {
             const xValues = xyValues[0];
             for (let i = 0; i < (counts.x - 1); i++) {
                 xValues[i] = xValues[i + 1];
@@ -264,7 +279,7 @@ export class Plotter {
             counts.x--;
         }
 
-        if (counts.y >= Plotter.SAMPLE_POINTS_LIMIT) {
+        if (counts.y >= this.#samplePointLimit) {
             const yValues = xyValues[1];
             for (let i = 0; i < (counts.y - 1); i++) {
                 yValues[i] = yValues[i + 1];
