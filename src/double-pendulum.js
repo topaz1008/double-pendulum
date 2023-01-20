@@ -71,6 +71,11 @@ export class DoublePendulum {
         this.m2 = options.m2; // Mass of bob 2
         this.l2 = options.l2; // Length of rod 2
 
+        this.theta1 = y0[THETA_1];
+        this.omega1 = y0[OMEGA_1];
+        this.theta2 = y0[THETA_2];
+        this.omega2 = y0[OMEGA_2];
+
         this.path = [];
 
         this.drawCalls = 0;
@@ -158,6 +163,10 @@ export class DoublePendulum {
     #drawPath() {
         const pathLength = this.path.length;
 
+        // Save current operation and change it
+        const prevOperation = this.context.globalCompositeOperation;
+        this.context.globalCompositeOperation = 'screen';
+
         this.context.lineWidth = 2;
 
         for (let i = 0; i < (pathLength - 1); i++) {
@@ -171,8 +180,12 @@ export class DoublePendulum {
 
             this.context.moveTo(p0.x, p0.y);
             this.context.lineTo(p1.x, p1.y);
+            // this.context.closePath();
             this.context.stroke();
         }
+
+        // Restore previous operation
+        this.context.globalCompositeOperation = prevOperation;
     }
 
     /**
@@ -231,11 +244,14 @@ export class DoublePendulum {
 
         const M = m1 + m2; // Total mass of the system
 
+        this.theta1 = y[THETA_1];
+        this.theta2 = y[THETA_2];
+
         dydt[THETA_1] = y[OMEGA_1]; // dTheta1/dt = omega1 by definition
 
         let denominator = l1 * (M - m2 * cosDtheta * cosDtheta);
 
-        dydt[OMEGA_1] = (l1 * m2 * y[OMEGA_1] * y[OMEGA_1] * sinDtheta * cosDtheta +
+        this.omega1 = dydt[OMEGA_1] = (l1 * m2 * y[OMEGA_1] * y[OMEGA_1] * sinDtheta * cosDtheta +
             l2 * m2 * y[OMEGA_2] * y[OMEGA_2] * sinDtheta -
             g * M * sinTheta1 +
             g * m2 * sinTheta2 * cosDtheta) / denominator;
@@ -244,7 +260,7 @@ export class DoublePendulum {
 
         denominator *= l2 / l1; // Scale by the ratio of rod's length
 
-        dydt[OMEGA_2] = -((l1 * M * y[OMEGA_1] * y[OMEGA_1] * sinDtheta +
+        this.omega2 = dydt[OMEGA_2] = -((l1 * M * y[OMEGA_1] * y[OMEGA_1] * sinDtheta +
             l2 * m2 * y[OMEGA_2] * y[OMEGA_2] * sinDtheta * cosDtheta -
             g * M * sinTheta1 * cosDtheta +
             g * M * sinTheta2) / denominator);
