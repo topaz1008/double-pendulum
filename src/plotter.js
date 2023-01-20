@@ -1,4 +1,5 @@
 import { PlotMode, RealTimePlot } from './realtime-plot.js';
+import { pendulum1Colors } from './color-constants.js';
 
 /**
  * This class holds scales for the x, y and t values.
@@ -12,7 +13,7 @@ export class PlotDataScale {
     constructor(xScale, yScale, timeScale) {
         this.x = xScale || 2000;
         this.y = yScale || 100;
-        this.time = timeScale || xScale;
+        this.time = timeScale || this.x;
     }
 }
 
@@ -71,7 +72,7 @@ const DEFAULT_OPTIONS = {
  */
 export class Plotter {
     options = null;
-    rtPlot = null; // TODO: Encapsulate this better
+    rtPlot = null;
 
     // Private
     #values = {};
@@ -180,7 +181,7 @@ export class Plotter {
             this.#shiftArray(id, [xValues, yValues]);
 
             // console.log(counts.x, counts.y);
-            if (this.rtPlot.mode === PlotMode.NORMAL) {
+            if (this.#mode === PlotMode.NORMAL) {
                 xValues[counts.x] = t * this.#dataScale.time;
                 yValues[counts.y] = y * this.#dataScale.y;
 
@@ -217,6 +218,31 @@ export class Plotter {
     }
 
     /**
+     * Draws all id(s) current registered.
+     *
+     * @param time {Number}
+     * @param colors {Array<String>}
+     */
+    drawAll(time, colors) {
+        let i = 0;
+        for (const id in this.#values) {
+            this.rtPlot.setPlotColor(colors[i++]);
+            this.draw(id, time);
+
+            this.rtPlot.restorePlotColor();
+        }
+    }
+
+    /**
+     * Clears the canvas
+     *
+     * @param time {Number}
+     */
+    clear(time) {
+        this.rtPlot.clear(time);
+    }
+
+    /**
      * Draws the axis.
      *
      * @param time {Number}
@@ -242,7 +268,7 @@ export class Plotter {
 
             this.rtPlot.context.fillStyle = line.color.toString();
 
-            if (this.rtPlot.mode === PlotMode.NORMAL) {
+            if (this.#mode === PlotMode.NORMAL) {
                 // Only translate x if we're in a normal plot
                 // 50; 50px margin from the right-align
                 // time * timeScale; keep translating the x-axis as 'time' increases

@@ -16,6 +16,7 @@ const defaultOptions = {
 
 export class PlotMode {
     static NORMAL = 0;
+    // noinspection JSUnusedGlobalSymbols
     static PHASE = 1;
 }
 

@@ -85,8 +85,8 @@ plotter.addTextLine(ID_AXIS_LABELS, new PlotText('x = time', plotTextColor))
     .addTextLine(ID_AXIS_LABELS, new PlotText('y = pendulum2 bob1 x position', pendulum2Colors.path));
 
 plotter.setDataScale(new PlotDataScale(2000, 100));
-plotter.setSamplePointLimit(500);
 plotter.setPlotMode(PlotMode.NORMAL);
+plotter.setSamplePointLimit(500);
 
 function plotStep(t) {
     // Step plot
@@ -102,17 +102,11 @@ function plotStep(t) {
 
 function plotDraw(time) {
     // Draw plot
-    plotter.rtPlot.clear(time);
+    plotter.clear(time);
     plotter.drawAxis(time);
-
     plotter.drawText(ID_AXIS_LABELS, time, 0, [50, 100, 150]);
 
-    plotter.rtPlot.setPlotColor(pendulum1Colors.path);
-    plotter.draw(ID_P1_BOB1_XPOS, time);
-
-    plotter.rtPlot.setPlotColor(pendulum2Colors.path);
-    plotter.draw(ID_P2_BOB1_XPOS, time);
-    plotter.rtPlot.restorePlotColor();
+    plotter.drawAll(time, [pendulum1Colors.path, pendulum2Colors.path]);
 }
 
 document.addEventListener('keydown', (e) => {
