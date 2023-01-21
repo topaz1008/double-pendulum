@@ -67,13 +67,11 @@ const ID_AXIS_LABELS = 0, // Axis text labels
 
 const plotter = new Plotter(plotContext, plotOptions);
 
-plotter.addLabel(ID_AXIS_LABELS,
-    new PlotLabel('x = time', 100, 50, colors.plotLabel))
-    .addLabel(ID_AXIS_LABELS,
-        new PlotLabel('y = pendulum1 bob1 x position', 100, 90, colors.pendulum1Path))
-    .addLabel(ID_AXIS_LABELS,
-        new PlotLabel('y = pendulum2 bob1 x position', 100, 130, colors.pendulum2Path)
-    );
+plotter.addLabels(ID_AXIS_LABELS, [
+    new PlotLabel('x = time', 100, 50, colors.plotLabel),
+    new PlotLabel('y = pendulum1 bob1 x position', 100, 90, colors.pendulum1Path),
+    new PlotLabel('y = pendulum2 bob1 x position', 100, 130, colors.pendulum2Path)
+]);
 
 plotter.setDataScale(new PlotDataScale(2000, 100))
     .setPlotMode(PlotMode.NORMAL)

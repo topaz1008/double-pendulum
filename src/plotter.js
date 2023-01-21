@@ -171,18 +171,18 @@ export class Plotter {
     }
 
     /**
-     * Add a text line for the id passed.
+     * Add text labels for the id passed.
      *
      * @param id {String|Number}
-     * @param label {PlotLabel}
+     * @param labels {Array<PlotLabel>}
      * @returns {Plotter}
      */
-    addLabel(id, label) {
+    addLabels(id, labels) {
         if (this.#isUndefined(this.#labels[id])) {
             this.#labels[id] = [];
         }
 
-        this.#labels[id].push(label);
+        this.#labels[id] = this.#labels[id].concat(labels);
 
         return this;
     }
@@ -220,6 +220,8 @@ export class Plotter {
             // We just added a value to both array so update counts
             counts.x++;
             counts.y++;
+
+            this.#drawCalls = 0;
         }
     }
 
