@@ -8,35 +8,45 @@ const TWO_PI = 2 * Math.PI;
  * once instantiated with the canvas context and the desired options
  * You can then call draw() each frame with 2 arrays
  * one for the x values and one for the y values.
- *
- * TODO: Encapsulate this class better. only expose what Plotter needs.
- *       and remove all the redundancy between the two classes
  */
 export class RealTimePlot {
+    #stepSize;
+    #width;
+    #height;
+    #scale;
+    #drawPoints;
+    #axisColor;
+    #pointColor;
+    #backgroundColor;
+    #plotColor;
+    #prevPlotColor;
+    #options = null;
+
     /**
      * @param context {CanvasRenderingContext2D}
      * @param options {Object}
      */
     constructor(context, options) {
         this.context = context;
-
-        this.stepSize = options.stepSize;
-
-        this.width = options.width;
-        this.height = options.height;
-
-        this.centerOrigin = options.centerOrigin;
-        this.drawPoints = options.drawPoints;
-
-        this.scale = options.scale;
         this.dataScale = options.dataScale;
         this.mode = options.mode;
-        this.axisColor = Color.fromString(options.axisColor);
-        this.pointColor = Color.fromString(options.pointColor);
-        this.backgroundColor = Color.fromString(options.backgroundColor);
 
-        this.plotColor = Color.fromString(options.plotColor);
-        this.prevPlotColor = Color.fromString(options.plotColor);
+        this.#options = options;
+
+        this.#stepSize = options.stepSize;
+
+        this.#width = options.width;
+        this.#height = options.height;
+
+        this.#drawPoints = options.drawPoints;
+
+        this.#scale = options.scale;
+        this.#axisColor = Color.fromString(options.axisColor);
+        this.#pointColor = Color.fromString(options.pointColor);
+        this.#backgroundColor = Color.fromString(options.backgroundColor);
+
+        this.#plotColor = Color.fromString(options.plotColor);
+        this.#prevPlotColor = Color.fromString(options.plotColor);
     }
 
     /**
@@ -54,7 +64,7 @@ export class RealTimePlot {
         }
 
         this.context.lineWidth = 2;
-        this.context.strokeStyle = this.plotColor.toString();
+        this.context.strokeStyle = this.#plotColor.toString();
         this.context.beginPath();
 
         for (let i = 0; i < (xl - 1); i++) {
@@ -66,15 +76,15 @@ export class RealTimePlot {
         this.context.stroke();
 
         // Draw a circle on the last data point.
-        this.context.fillStyle = this.pointColor.toString();
+        this.context.fillStyle = this.#pointColor.toString();
         this.context.beginPath();
         this.context.arc(x[xl - 1], -y[yl - 1], 4, 0, TWO_PI);
         this.context.closePath();
         this.context.fill();
 
         // Draw integration sample points?
-        if (this.drawPoints === true /*&& this.stepSize >= 1 / 100*/) {
-            this.context.fillStyle = this.pointColor.toString();
+        if (this.#drawPoints === true /*&& this.#stepSize >= 1 / 100*/) {
+            this.context.fillStyle = this.#pointColor.toString();
             this.context.beginPath();
             for (let i = 0; i < xl; i++) {
                 this.context.moveTo(x[i], -y[i]);
@@ -92,15 +102,15 @@ export class RealTimePlot {
      * @param colorString {String}
      */
     setPlotColor(colorString) {
-        this.prevPlotColor = this.plotColor.clone();
-        this.plotColor = Color.fromString(colorString);
+        this.#prevPlotColor = this.#plotColor.clone();
+        this.#plotColor = Color.fromString(colorString);
     }
 
     /**
      * Restores the previous color (before calling setPlotColor())
      */
     restorePlotColor() {
-        this.plotColor = this.prevPlotColor.clone();
+        this.#plotColor = this.#prevPlotColor.clone();
     }
 
     /**
@@ -110,21 +120,21 @@ export class RealTimePlot {
      */
     clear(time) {
         const prevFillStyle = this.context.fillStyle;
-        this.context.fillStyle = this.backgroundColor.toString();
+        this.context.fillStyle = this.#backgroundColor.toString();
 
         this.context.setTransform(1, 0, 0, 1, 0, 0);
-        this.context.scale(this.scale, this.scale);
+        this.context.scale(this.#scale, this.#scale);
 
         // this.context.clearRect(0, 0, this.width, this.height);
-        this.context.fillRect(0, 0, this.width, this.height);
+        this.context.fillRect(0, 0, this.#width, this.#height);
 
         if (this.mode === PlotMode.NORMAL) {
-            const x = (this.width / 2) - (time * this.dataScale.time);
-            this.context.translate(x, this.height / 2);
+            const x = (this.#width / 2) - (time * this.dataScale.time);
+            this.context.translate(x, this.#height / 2);
 
         } else {
             // Phase space
-            this.context.translate(this.width / 2, this.height / 2);
+            this.context.translate(this.#width / 2, this.#height / 2);
         }
 
         this.context.fillStyle = prevFillStyle;
@@ -143,7 +153,7 @@ export class RealTimePlot {
         const prevStrokeStyle = this.context.strokeStyle;
 
         this.context.lineWidth = 1;
-        this.context.strokeStyle = this.axisColor.toString();
+        this.context.strokeStyle = this.#axisColor.toString();
         this.context.beginPath();
 
         this.context.moveTo(0, -Y_MAX);
@@ -159,5 +169,13 @@ export class RealTimePlot {
         this.context.stroke();
 
         this.context.strokeStyle = prevStrokeStyle;
+    }
+
+    get fillStyle() {
+        return this.context.fillStyle;
+    }
+
+    set fillStyle(fillStyle) {
+        this.context.fillStyle = fillStyle;
     }
 }

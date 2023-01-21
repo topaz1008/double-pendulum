@@ -63,7 +63,7 @@ export class PlotMode {
 /**
  * Hold default options and can be extended by the user.
  */
-export class PlotOptions {
+class PlotOptions {
     #defaultOptions = {
         width: 1024,
         height: 768 / 2,
@@ -71,12 +71,11 @@ export class PlotOptions {
         mode: PlotMode.NORMAL,
         scale: 1,
         dataScale: new PlotDataScale(),
-        centerOrigin: false,
         drawPoints: false,
         backgroundColor: 'rgb(0,0,0)',
-        axisColor: 'rgb(0,0,0)',
+        axisColor: 'rgb(255,255,255)',
         plotColor: 'rgb(56,229,19)',
-        pointColor: 'rgb(0,0,0)'
+        pointColor: 'rgb(255,255,255)'
     };
 
     #options = null;
@@ -117,7 +116,7 @@ export class Plotter {
     #drawCalls = 0;
 
     constructor(context, options) {
-        this.#options = new PlotOptions(options).get();
+        this.#options = (new PlotOptions(options)).get();
 
         this.#dataScale = this.#options.dataScale;
         this.#rtPlot = new RealTimePlot(context, this.#options);
@@ -154,7 +153,9 @@ export class Plotter {
      * @returns {Plotter}
      */
     setPathSimplify(amount) {
-        this.#pathSimplify = amount;
+        if (amount > 0 && amount < 6) {
+            this.#pathSimplify = amount;
+        }
 
         return this;
     }
@@ -272,7 +273,7 @@ export class Plotter {
      * @param time {Number=}
      */
     drawAxis(time) {
-        this.#rtPlot.drawAxis(this.#rtPlot.width + ((time ? time : 0) * this.#dataScale.time), 300);
+        this.#rtPlot.drawAxis(this.#options.width + ((time ? time : 0) * this.#dataScale.time), 300);
     }
 
     /**
@@ -282,13 +283,13 @@ export class Plotter {
      * @param time {Number}
      */
     drawLabels(id, time) {
-        const prevFillStyle = this.#rtPlot.context.fillStyle;
+        const prevFillStyle = this.#rtPlot.fillStyle;
 
         const labels = this.#labels[id];
         for (let i = 0; i < labels.length; i++) {
             const label = labels[i];
 
-            this.#rtPlot.context.fillStyle = label.color.toString();
+            this.#rtPlot.fillStyle = label.color.toString();
 
             if (this.#mode === PlotMode.NORMAL) {
                 // Only translate x if we're in a normal plot
@@ -309,7 +310,7 @@ export class Plotter {
             label.draw(this.#rtPlot.context);
         }
 
-        this.#rtPlot.context.fillStyle = prevFillStyle;
+        this.#rtPlot.fillStyle = prevFillStyle;
     }
 
     //////////////////////
