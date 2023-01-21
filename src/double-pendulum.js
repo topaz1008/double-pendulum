@@ -38,10 +38,9 @@ export class DoublePendulum {
      *
      * @param y0 {Array<Number>}
      * @param context {CanvasRenderingContext2D}
-     * @param fps {Number}
      * @param options {Object}
      */
-    constructor(y0, context, fps, options) {
+    constructor(y0, context, options) {
         this.y = y0;
         this.context = context;
 
@@ -63,7 +62,7 @@ export class DoublePendulum {
         // Since the solver integrates in real-time and uses a fixed step size.
         // The speed of the simulation is tied to that step size.
         // this factor allows a control over time scaling according to the fps and an arbitrary timescale constant.
-        this.timeScaleIterations = Math.round((1 / this.stepSize) / fps * DoublePendulum.TIME_SCALE);
+        this.timeScaleIterations = Math.round((1 / this.stepSize) / options.fps * DoublePendulum.TIME_SCALE);
 
         this.gravity = options.gravity;
         this.origin = options.origin;

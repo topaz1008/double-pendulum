@@ -253,8 +253,9 @@ export class Plotter {
     drawAll(colors) {
         const ids = Object.keys(this.#values);
         if (ids.length === 0) return; // If nothing was added yet; bail silently
-
-        if (ids.length !== colors.length)  {
+        if (colors.length < ids.length)  {
+            // Only throw if we have less colors than we need.
+            // If we have more than we need, just continue.
             throw new Error('Plotter->drawAll(): Not enough colors specified for the id(s).');
         }
 

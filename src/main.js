@@ -1,7 +1,10 @@
+// noinspection JSSuspiciousNameCombination
+
 import { DoublePendulum } from './double-pendulum.js';
-import { Plotter, PlotDataScale, PlotMode, PlotLabel } from './plotter.js';
+import { PlotDataScale, PlotMode, PlotLabel } from './plotter.js';
 import { colors } from './color-constants.js';
-import { UIElement } from './ui-element.js';
+import { UIControlElement } from './ui-control-element.js';
+import { PlotManager } from './plot-manager.js';
 
 // TODO: Refactor this file, its getting big.
 
@@ -21,12 +24,17 @@ let time = 0,
     isPaused = false;
 
 // Create the 2 canvas elements and get the context
-const context = createCanvas('main', VIEW_WIDTH, VIEW_HEIGHT, 'mainContainer');
-const plotContext = createCanvas('plot', VIEW_WIDTH, HALF_HEIGHT, 'plotContainer');
+const context = createCanvas('mainContainer', VIEW_WIDTH, VIEW_HEIGHT);
+const plotContext = createCanvas('plotContainer', VIEW_WIDTH, HALF_HEIGHT);
 
 // UI Controls
-const buttons = new UIElement('[role=button]');
-const plotType = new UIElement('[role=dropdown]');
+const buttons = new UIControlElement('[role=button]');
+const plotType = new UIControlElement('[role=combobox]');
+const rangeSlider = new UIControlElement('input[type=range]');
+rangeSlider.on('change', 'change', (e) => {
+    console.log('slider changed', e.target.value);
+});
+
 buttons.on('pause', 'click', (e) => {
     const target = e.target;
 
@@ -35,11 +43,12 @@ buttons.on('pause', 'click', (e) => {
 });
 buttons.on('reset', 'click', (e) => {
     createPendulums();
-    plotter.reset();
+    tmp.reset();
 });
 plotType.on('change', 'change', (e) => {
     const target = e.target;
-    console.log('dropdown value', target.value);
+
+    tmp.setActivePlotId(target.value);
 });
 
 // Pendulums
@@ -47,6 +56,7 @@ const pendulumOptions = {
     gravity: 9.81,
     origin: { x: 0, y: 0 },
     stepSize: STEP_SIZE,
+    fps: FPS,
     backgroundColor: colors.background,
     l1: 1, // Length of rod 1 (top)
     m1: 1, // Mass of bob 1 (top)
@@ -58,7 +68,7 @@ let pendulum1, pendulum2;
 function createPendulums() {
     // Initial conditions [theta1, theta2, omega1, omega2]
     const y0_1 = [3 * PI / 4, PI, 0, 0];
-    pendulum1 = new DoublePendulum(y0_1, context, FPS, Object.assign(pendulumOptions, {
+    pendulum1 = new DoublePendulum(y0_1, context, Object.assign(pendulumOptions, {
         rodColor: colors.pendulum1Rod,
         bobColor: colors.pendulum1Bod,
         pathColor: colors.pendulum1Path
@@ -69,7 +79,7 @@ function createPendulums() {
     // This is what makes this system chaotic.
     const EPSILON = 1 / 10000;
     const y0_2 = [(3 * PI / 4) + EPSILON, PI, 0, 0];
-    pendulum2 = new DoublePendulum(y0_2, context, FPS, Object.assign(pendulumOptions, {
+    pendulum2 = new DoublePendulum(y0_2, context, Object.assign(pendulumOptions, {
         rodColor: colors.pendulum2Rod,
         bobColor: colors.pendulum2Bod,
         pathColor: colors.pendulum2Path
@@ -88,51 +98,82 @@ const plotOptions = {
     pointColor: colors.plotPoint
 };
 
-const ID_AXIS_LABELS = 0, // Axis text labels
-    ID_P1_BOB1_XPOS = 1, // Pendulum 1 bob 1 x position
-    ID_P2_BOB1_XPOS = 2; // Pendulum 2 bob 1 x position
+const ID_P1_BOB1_XPOS = 0, // Pendulum 1 bob 1 x position
+    ID_P2_BOB1_XPOS = 1; // Pendulum 2 bob 1 x position
 
-const plotter = new Plotter(plotContext, plotOptions);
+const ID_P1_BOB2_XPOS = 2,
+    ID_P2_BOB2_XPOS = 3;
 
-plotter.addLabels(ID_AXIS_LABELS, [
-    new PlotLabel('x = time', 100, 50, colors.plotLabel),
-    new PlotLabel('y = pendulum1 bob1 x position', 100, 90, colors.pendulum1Path),
-    new PlotLabel('y = pendulum2 bob1 x position', 100, 130, colors.pendulum2Path)
-]);
-plotter.setDataScale(new PlotDataScale(2000, 100))
-    .setPlotMode(PlotMode.NORMAL)
-    .setSamplePointLimit(500)
-    .setPathSimplify(2);
+const ID_P1_THETA1 = 4,
+    ID_P1_OMEGA1 = 5;
+
+const tmp = new PlotManager(plotContext, plotOptions, {
+    bob1xpos: {
+        ids: [ID_P1_BOB1_XPOS, ID_P2_BOB1_XPOS],
+        dataScale: new PlotDataScale(1000, 100),
+        mode: PlotMode.NORMAL,
+        samplePointLimit: 500,
+        pathSimplify: 2,
+        labels: [
+            new PlotLabel('x = time', 100, 50, colors.plotLabel),
+            new PlotLabel('y = pendulum1 bob1 x position', 100, 90, colors.pendulum1Path),
+            new PlotLabel('y = pendulum2 bob1 x position', 100, 130, colors.pendulum2Path)
+        ]
+    },
+    bob2xpos: {
+        ids: [ID_P1_BOB2_XPOS, ID_P2_BOB2_XPOS],
+        dataScale: new PlotDataScale(1000, 50),
+        mode: PlotMode.NORMAL,
+        samplePointLimit: 500,
+        pathSimplify: 2,
+        labels: [
+            new PlotLabel('x = time', 100, 50, colors.plotLabel),
+            new PlotLabel('y = pendulum1 bob2 x position', 100, 90, colors.pendulum1Path),
+            new PlotLabel('y = pendulum2 bob2 x position', 100, 130, colors.pendulum2Path)
+        ]
+    },
+    theta1theta1prime: {
+        ids: [ID_P1_THETA1, ID_P1_OMEGA1],
+        dataScale: new PlotDataScale(10, 10),
+        mode: PlotMode.PHASE,
+        samplePointLimit: 1500,
+        pathSimplify: 2,
+        labels: [
+            new PlotLabel('x = theta1', 100, 50, colors.plotLabel),
+            new PlotLabel('y = omega1', 100, 90, colors.pendulum1Path)
+        ]
+    }
+});
 
 function plotStep(t) {
     // Step plot
-    const b1 = pendulum1.position1(true),
-        b2 = pendulum2.position1(true);
+    const p1b1 = pendulum1.position1(true),
+        p1b2 = pendulum1.position2(true),
+        p2b1 = pendulum2.position1(true),
+        p2b2 = pendulum2.position2(true);
 
-    // noinspection JSSuspiciousNameCombination :)
-    plotter.step(ID_P1_BOB1_XPOS, t, b1.x);
-    // noinspection JSSuspiciousNameCombination
-    plotter.step(ID_P2_BOB1_XPOS, t, b2.x);
+    if (tmp.activePlotId === 'bob1xpos') {
+        tmp.step(ID_P1_BOB1_XPOS, t, p1b1.x);
+        tmp.step(ID_P2_BOB1_XPOS, t, p2b1.x);
+
+    } else if (tmp.activePlotId === 'bob2xpos') {
+        tmp.step(ID_P1_BOB2_XPOS, t, p1b2.x);
+        tmp.step(ID_P2_BOB2_XPOS, t, p2b2.x);
+
+    } else if (tmp.activePlotId === 'theta1theta1prime') {
+        tmp.step(ID_P1_THETA1, pendulum1.theta2 , pendulum1.omega2);
+        // console.log(`theta1 ${pendulum1.theta2 / (4 * PI)}`);
+        // console.log(`omega1 ${pendulum1.omega2}`);
+    }
 }
 
 function plotDraw(t) {
     // Draw plot
-    plotter.clear(t);
-    plotter.drawAxis(t);
-    plotter.drawLabels(ID_AXIS_LABELS, t);
-
-    plotter.drawAll([
+    tmp.draw(t, [
         colors.pendulum1Path,
         colors.pendulum2Path
     ]);
 }
-
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'p') {
-        isPaused = !isPaused;
-    }
-
-}, false);
 
 createPendulums();
 update();
@@ -164,27 +205,21 @@ function update() {
     requestAnimationFrame(update);
 }
 
-function createCanvas(id, width, height, containerId) {
-    const el = document.getElementById(id);
-    if (el !== null) {
-        return el.getContext('2d');
-    }
-
+function createCanvas(containerId, width, height) {
     // Create a new canvas element.
-    const c = document.createElement('canvas'),
-        ctx = c.getContext('2d');
+    const element = document.createElement('canvas'),
+        context = element.getContext('2d');
 
-    c.id = id;
-    c.width = width;
-    c.height = height;
+    element.width = width;
+    element.height = height;
 
     if (containerId !== undefined) {
         const container = document.getElementById(containerId);
-        container.appendChild(c);
+        container.appendChild(element);
 
     } else {
-        document.body.appendChild(c);
+        document.body.appendChild(element);
     }
 
-    return ctx;
+    return context;
 }

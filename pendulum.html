@@ -25,39 +25,109 @@
 <body>
 
 <main class="container">
-    <section class="container">
-        <h3>Double Pendulum</h3>
+
+    <h3>Double Pendulum</h3>
+    <details open>
+        <summary>More info</summary>
         <p>This demo shows how very small changes in initial conditions can make for a very different
             behaviour of the system in a very short time; thus making it a chaotic system.</p>
         <p>The demo starts with 2 double pendulums; one <i class="green">green</i> and one <i class="blue">blue</i>
             using nearly the same initial conditions, one pendulum has one of its
             starting angle changed by EPSILON (default is 1/10000) even with that small of a change the different
             pendulums will start to diverge after about 5-7 seconds.</p>
-    </section>
+    </details>
+
+    <a href="#" role="button" data-action="reset">
+        Reset
+    </a>
+    <a href="#" role="button" data-action="pause">
+        Pause
+    </a>
+
     <section id="mainContainer" class="container">
         <!-- Main canvas goes here -->
     </section>
+
+    <fieldset>
+        <legend>Radios</legend>
+        <label for="small">
+            <input type="radio" id="small" name="size" value="small" checked>
+            Small
+        </label>
+
+        <label for="large">
+            <input type="radio" id="large" name="size" value="large">
+            Large
+        </label>
+    </fieldset>
+
+    <fieldset>
+        <legend>Checkboxes</legend>
+        <label for="terms">
+            <input type="checkbox" id="terms" name="terms">
+            Checkbox
+        </label>
+    </fieldset>
+
+    <fieldset>
+        <legend>Switches</legend>
+        <label for="switch">
+            <input type="checkbox" id="switch" name="switch" role="switch">
+            On/Off Switch
+        </label>
+    </fieldset>
+
+    <fieldset>
+        <legend>Range sliders</legend>
+        <label for="range">
+            A value
+            <input type="range" min="1" max="5" step="0.5" value="1" id="range" name="range" data-action="change">
+        </label>
+    </fieldset>
     <div class="container controls">
         <div class="inline">
-            <label>
-                Graph Type
-                <select role="dropdown" data-action="change">
-                    <option value="bob1xpos" selected>Bob 1 X Positions</option>
-                    <option value="bob2xpos">Bob 2 X Positions</option>
-                    <option value="theta1theta1prime">θ-1 vs θ-1'</option>
-                </select>
-            </label>
+            <label for="plotType">Graph Type</label>
+<!--            <details id="plotType" role="list">-->
+<!--                <summary role="button" aria-haspopup="listbox">Bob 1 x Positions</summary>-->
+<!--                <ul role="listbox">-->
+<!--                    <li><a>Bob 1 \x Positions</a></li>-->
+<!--                    <li><a>Bob 2 X Positions</a></li>-->
+<!--                    <li><a>\begin{align} \theta _1 vs. \theta '_1 \end{align}</a></li>-->
+<!--                </ul>-->
+<!--            </details>-->
+            <select id="plotType" role="combobox" data-action="change">
+                <option value="bob1xpos" selected>Bob 1 X Positions</option>
+                <option value="bob2xpos">Bob 2 X Positions</option>
+                <option value="theta1theta1prime">theta1 vs. theta1 prime</option>
+            </select>
         </div>
-
-        <a href="#" role="button" data-action="reset">Reset</a>
-        <a href="#" role="button" data-action="pause">Pause</a>
     </div>
+
+    <p>
+        \begin{align}
+        \dot{x} &amp; = \sigma(y-x) \\
+        \dot{y} &amp; = \rho x - y - xz \\
+        \dot{z} &amp; = -\beta z + xy
+        \end{align}
+        \begin{equation}
+        \theta _1 \theta '_1 \\
+
+        \omega _1 \omega _2
+        \end{equation}
+    </p>
 
     <section id="plotContainer" class="container">
         <!-- Bottom plot canvas goes here -->
     </section>
 </main>
 
+<script>
+    MathJax = {
+        tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+        svg: { fontCache: 'global' }
+    };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 <script src="src/main.js" type="module"></script>
 
 </body>

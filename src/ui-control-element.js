@@ -1,7 +1,7 @@
 /**
  * A simple class to handle registering events on DOM elements.
  */
-export class UIElement {
+export class UIControlElement {
     #elements = {};
 
     /**
