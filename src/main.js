@@ -1,6 +1,5 @@
 import { DoublePendulum } from './double-pendulum.js';
-import { PlotMode } from './realtime-plot.js';
-import { PlotDataScale, Plotter, PlotLabel } from './plotter.js';
+import { Plotter, PlotDataScale, PlotMode, PlotLabel } from './plotter.js';
 import {
     mainBackgroundColor,
     pendulum1Colors,
@@ -90,22 +89,22 @@ plotter.setDataScale(new PlotDataScale(2000, 100))
     .setPlotMode(PlotMode.NORMAL)
     .setSamplePointLimit(500);
 
-function plotStep(time) {
+function plotStep(t) {
     // Step plot
     const b1 = pendulum1.position1(true),
         b2 = pendulum2.position1(true);
 
     // noinspection JSSuspiciousNameCombination :)
-    plotter.step(ID_P1_BOB1_XPOS, time, b1.x);
+    plotter.step(ID_P1_BOB1_XPOS, t, b1.x);
     // noinspection JSSuspiciousNameCombination
-    plotter.step(ID_P2_BOB1_XPOS, time, b2.x);
+    plotter.step(ID_P2_BOB1_XPOS, t, b2.x);
 }
 
-function plotDraw(time) {
+function plotDraw(t) {
     // Draw plot
-    plotter.clear(time);
-    plotter.drawAxis(time);
-    plotter.drawLabels(ID_AXIS_LABELS, time);
+    plotter.clear(t);
+    plotter.drawAxis(t);
+    plotter.drawLabels(ID_AXIS_LABELS, t);
 
     plotter.drawAll([
         pendulum1Colors.path,

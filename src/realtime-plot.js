@@ -1,5 +1,5 @@
 import { Color } from './color.js';
-import { PlotDataScale } from './plotter.js';
+import { PlotDataScale, PlotMode } from './plotter.js';
 
 const TWO_PI = 2 * Math.PI;
 
@@ -13,12 +13,6 @@ const defaultOptions = {
     plotColor: 'rgb(255,0,0)',
     pointColor: 'rgb(255,255,255)'
 };
-
-export class PlotMode {
-    static NORMAL = 0;
-    // noinspection JSUnusedGlobalSymbols
-    static PHASE = 1;
-}
 
 /**
  * This class handles plotting an (x, y) graph in real time.

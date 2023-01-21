@@ -1,4 +1,4 @@
-import { PlotMode, RealTimePlot } from './realtime-plot.js';
+import { RealTimePlot } from './realtime-plot.js';
 
 /**
  * This class holds scales for the x, y and t values.
@@ -40,11 +40,10 @@ export class PlotLabel {
     }
 
     draw(context) {
-        context.font = this.font;
-
         const prevFillStyle = context.fillStyle;
-        context.fillStyle = this.color.toString();
 
+        context.font = this.font;
+        context.fillStyle = this.color.toString();
         context.fillText(this.text, this.x, this.y);
 
         // Restore previous color
@@ -52,7 +51,16 @@ export class PlotLabel {
     }
 }
 
-// Plot settings
+/**
+ * Plot mode enum.
+ */
+export class PlotMode {
+    static NORMAL = 0;
+    // noinspection JSUnusedGlobalSymbols
+    static PHASE = 1;
+}
+
+// Default plot options
 const DEFAULT_OPTIONS = {
     width: 1024,
     height: 768 / 2,
@@ -73,23 +81,25 @@ const DEFAULT_OPTIONS = {
  * It is a wrapper around RealTimePlot.
  */
 export class Plotter {
-    options = null;
+    options = null; // FIXME: make private
 
     // Private
     #rtPlot = null;
     #values = {};
     #counts = {};
-    #plotLabels = {};
+    #labels = {};
     #dataScale = null;
     #mode = PlotMode.NORMAL;
 
     // How many sample points do we save?
     // Once 'limit' is reached the array space will be recycled
     // This could be increased/decreased depending on the width
-    // of the canvas; 500 seems to work for a width of 384 (we only draw on have the canvas)
+    // of the canvas; 500 seems to work for a width of 384 (we only draw on half the canvas width)
     // so everything that is being discarded does so out of the viewport.
     // When plot mode is set to PlotMode.PHASE then more values will be required
     // to maintain a path that is long enough (since nothing leaves the viewport)
+    // TODO: phase space plots will benefit from having a simple path simplification
+    //       so implement that
     #samplePointLimit = 500;
 
     constructor(context, options) {
@@ -100,7 +110,7 @@ export class Plotter {
     }
 
     //////////////////////
-    // Public methods  //
+    // Public methods   //
     //////////////////////
 
     /**
@@ -137,15 +147,15 @@ export class Plotter {
      * Add a text line for the id passed.
      *
      * @param id {String|Number}
-     * @param plotText {PlotLabel}
+     * @param label {PlotLabel}
      * @returns {Plotter}
      */
-    addLabel(id, plotText) {
-        if (this.#isUndefined(this.#plotLabels[id])) {
-            this.#plotLabels[id] = [];
+    addLabel(id, label) {
+        if (this.#isUndefined(this.#labels[id])) {
+            this.#labels[id] = [];
         }
 
-        this.#plotLabels[id].push(plotText);
+        this.#labels[id].push(label);
 
         return this;
     }
@@ -159,7 +169,7 @@ export class Plotter {
      */
     step(id, x, y) {
         if (!this.#hasId(id)) {
-            this.#registerId(id);
+            this.#addId(id);
         }
 
         const idValues = this.#values[id];
@@ -244,7 +254,7 @@ export class Plotter {
     drawLabels(id, time) {
         const prevFillStyle = this.#rtPlot.context.fillStyle;
 
-        const labels = this.#plotLabels[id];
+        const labels = this.#labels[id];
         for (let i = 0; i < labels.length; i++) {
             const label = labels[i];
 
@@ -252,7 +262,7 @@ export class Plotter {
 
             if (this.#mode === PlotMode.NORMAL) {
                 // Only translate x if we're in a normal plot
-                // 100; 100px margin from the right-align
+                // initialX-px margin from the right-align
                 // time * timeScale; keep translating the x-axis as 'time' increases
                 // i.e. we right align text and keep translating it as
                 // the x-axis moves
@@ -305,12 +315,11 @@ export class Plotter {
     }
 
     /**
-     * Register a new id.
+     * Adds a new id.
      *
      * @param id {String|Number}
-     * @returns {Plotter}
      */
-    #registerId(id) {
+    #addId(id) {
         if (this.#isUndefined(this.#values[id])) {
             // Use constant size arrays for efficiency
             this.#values[id] = [
@@ -324,8 +333,6 @@ export class Plotter {
             // This will be used to index the next element in its place
             this.#counts[id] = { x: 0, y: 0 };
         }
-
-        return this;
     }
 
     /**
@@ -345,4 +352,5 @@ export class Plotter {
     #isUndefined(value) {
         return (value === undefined);
     }
-}
+
+} // End class
