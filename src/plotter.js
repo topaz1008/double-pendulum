@@ -60,18 +60,33 @@ export class PlotMode {
     static PHASE = 1;
 }
 
-// Default plot options
-const DEFAULT_OPTIONS = {
-    width: 1024,
-    height: 768 / 2,
-    stepSize: 1 / 1000,
-    mode: 0, //PlotMode.NORMAL
-    scale: 1,
-    drawPoints: false,
-    axisColor: 'rgb(0,0,0)',
-    plotColor: 'rgb(56,229,19)',
-    pointColor: 'rgb(0,0,0)'
-};
+/**
+ * Hold default options and can be extended by the user.
+ */
+export class PlotOptions {
+    #defaultOptions = {
+        width: 1024,
+        height: 768 / 2,
+        stepSize: 1 / 1000,
+        mode: PlotMode.NORMAL,
+        scale: 1,
+        dataScale: new PlotDataScale(),
+        centerOrigin: false,
+        drawPoints: false,
+        backgroundColor: 'rgb(0,0,0)',
+        axisColor: 'rgb(0,0,0)',
+        plotColor: 'rgb(56,229,19)',
+        pointColor: 'rgb(0,0,0)'
+    };
+
+    #options = null;
+
+    constructor(options) {
+        this.#options = Object.assign(this.#defaultOptions, options || {});
+    }
+
+    get() { return this.#options; }
+}
 
 /**
  * This class handles plotting real time values for multiple 'id(s)'
@@ -81,8 +96,6 @@ const DEFAULT_OPTIONS = {
  * It is a wrapper around RealTimePlot.
  */
 export class Plotter {
-    options = null; // FIXME: make private
-
     // Private
     #rtPlot = null;
     #values = {};
@@ -90,6 +103,7 @@ export class Plotter {
     #labels = {};
     #dataScale = null;
     #mode = PlotMode.NORMAL;
+    #options = null;
 
     // How many sample points do we save?
     // Once 'limit' is reached the array space will be recycled
@@ -98,15 +112,17 @@ export class Plotter {
     // so everything that is being discarded does so out of the viewport.
     // When plot mode is set to PlotMode.PHASE then more values will be required
     // to maintain a path that is long enough (since nothing leaves the viewport)
-    // TODO: phase space plots will benefit from having a simple path simplification
-    //       so implement that
     #samplePointLimit = 500;
+    #pathSimplify = 2;
+    #drawCalls = 0;
 
     constructor(context, options) {
-        const opts = Object.assign(DEFAULT_OPTIONS, options || {});
-        this.options = opts;
-        this.#dataScale = new PlotDataScale();
-        this.#rtPlot = new RealTimePlot(context, opts);
+        this.#options = new PlotOptions(options).get();
+
+        this.#dataScale = this.#options.dataScale;
+        this.#rtPlot = new RealTimePlot(context, this.#options);
+
+        this.#drawCalls = 0;
     }
 
     //////////////////////
@@ -129,6 +145,16 @@ export class Plotter {
      */
     setSamplePointLimit(limit) {
         this.#samplePointLimit = limit;
+
+        return this;
+    }
+
+    /**
+     * @param amount {Number}
+     * @returns {Plotter}
+     */
+    setPathSimplify(amount) {
+        this.#pathSimplify = amount;
 
         return this;
     }
@@ -172,26 +198,28 @@ export class Plotter {
             this.#addId(id);
         }
 
-        const idValues = this.#values[id];
-        const counts = this.#counts[id];
-        const xValues = idValues[0];
-        const yValues = idValues[1];
+        if ((this.#drawCalls % this.#pathSimplify) === 0) {
+            const idValues = this.#values[id];
+            const counts = this.#counts[id];
+            const xValues = idValues[0];
+            const yValues = idValues[1];
 
-        this.#shiftArray(id, [xValues, yValues]);
+            this.#shiftArray(id, [xValues, yValues]);
 
-        if (this.#mode === PlotMode.NORMAL) {
-            xValues[counts.x] = x * this.#dataScale.time;
+            if (this.#mode === PlotMode.NORMAL) {
+                xValues[counts.x] = x * this.#dataScale.time;
 
-        } else {
-            // Phase space plot
-            xValues[counts.x] = x * this.#dataScale.x;
+            } else {
+                // Phase space plot
+                xValues[counts.x] = x * this.#dataScale.x;
+            }
+
+            yValues[counts.y] = y * this.#dataScale.y;
+
+            // We just added a value to both array so update counts
+            counts.x++;
+            counts.y++;
         }
-
-        yValues[counts.y] = y * this.#dataScale.y;
-
-        // We just added a value to both array so update counts
-        counts.x++;
-        counts.y++;
     }
 
     /**
@@ -210,6 +238,8 @@ export class Plotter {
         const yValues = idValues[1];
 
         this.#rtPlot.draw(xValues, counts.x, yValues, counts.y);
+
+        this.#drawCalls++;
     }
 
     /**

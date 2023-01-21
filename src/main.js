@@ -80,7 +80,8 @@ plotter.addLabel(ID_AXIS_LABELS,
 
 plotter.setDataScale(new PlotDataScale(2000, 100))
     .setPlotMode(PlotMode.NORMAL)
-    .setSamplePointLimit(500);
+    .setSamplePointLimit(500)
+    .setPathSimplify(2);
 
 function plotStep(t) {
     // Step plot

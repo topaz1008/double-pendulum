@@ -1,24 +1,16 @@
 import { Color } from './color.js';
-import { PlotDataScale, PlotMode } from './plotter.js';
+import { PlotMode } from './plotter.js';
 
 const TWO_PI = 2 * Math.PI;
-
-const defaultOptions = {
-    width: 1024,
-    height: 768 / 2,
-    stepSize: 1 / 1000,
-    scale: 1,
-    backgroundColor: 'rgb(62,62,62)',
-    axisColor: 'rgb(255,255,255)',
-    plotColor: 'rgb(255,0,0)',
-    pointColor: 'rgb(255,255,255)'
-};
 
 /**
  * This class handles plotting an (x, y) graph in real time.
  * once instantiated with the canvas context and the desired options
  * You can then call draw() each frame with 2 arrays
  * one for the x values and one for the y values.
+ *
+ * TODO: Encapsulate this class better. only expose what Plotter needs.
+ *       and remove all the redundancy between the two classes
  */
 export class RealTimePlot {
     /**
@@ -27,8 +19,6 @@ export class RealTimePlot {
      */
     constructor(context, options) {
         this.context = context;
-
-        options = Object.assign(defaultOptions, options || {});
 
         this.stepSize = options.stepSize;
 
@@ -39,8 +29,8 @@ export class RealTimePlot {
         this.drawPoints = options.drawPoints;
 
         this.scale = options.scale;
-        this.dataScale = new PlotDataScale();
-        this.mode = options.mode || PlotMode.NORMAL;
+        this.dataScale = options.dataScale;
+        this.mode = options.mode;
         this.axisColor = Color.fromString(options.axisColor);
         this.pointColor = Color.fromString(options.pointColor);
         this.backgroundColor = Color.fromString(options.backgroundColor);

@@ -29,9 +29,9 @@ export class Color {
 
         const match = regex.exec(str);
         if (match === null || match.length < 2) {
-            console.log(`Color.fromString() -> invalid string color format ${str}`);
+            console.warn(`Color.fromString() -> invalid string color format "${str}" returning red`);
 
-            return new Color(255, 255, 255);
+            return new Color(255, 0, 0);
         }
 
         const r = parseInt(match[1], 10);
