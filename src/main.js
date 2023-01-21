@@ -1,13 +1,6 @@
 import { DoublePendulum } from './double-pendulum.js';
 import { Plotter, PlotDataScale, PlotMode, PlotLabel } from './plotter.js';
-import {
-    mainBackgroundColor,
-    pendulum1Colors,
-    pendulum2Colors,
-    plotBackgroundColor,
-    plotTextColor,
-    plotColors
-} from './color-constants.js';
+import { colors } from './color-constants.js';
 
 // General constants
 const VIEW_WIDTH = 1024,
@@ -40,9 +33,9 @@ const pendulumOptions = {
 // Initial conditions [theta1, theta2, omega1, omega2]
 const y0_1 = [3 * PI / 4, PI, 0, 0];
 const pendulum1 = new DoublePendulum(y0_1, context, FPS, Object.assign(pendulumOptions, {
-    rodColor: pendulum1Colors.rod,
-    bobColor: pendulum1Colors.bob,
-    pathColor: pendulum1Colors.path
+    rodColor: colors.pendulum1Rod,
+    bobColor: colors.pendulum1Bod,
+    pathColor: colors.pendulum1Path
 }));
 
 // Add another pendulum to show how very small changes in the initial conditions
@@ -51,9 +44,9 @@ const pendulum1 = new DoublePendulum(y0_1, context, FPS, Object.assign(pendulumO
 const EPSILON = 1 / 10000;
 const y0_2 = [(3 * PI / 4) + EPSILON, PI, 0, 0];
 const pendulum2 = new DoublePendulum(y0_2, context, FPS, Object.assign(pendulumOptions, {
-    rodColor: pendulum2Colors.rod,
-    bobColor: pendulum2Colors.bob,
-    pathColor: pendulum2Colors.path
+    rodColor: colors.pendulum2Rod,
+    bobColor: colors.pendulum2Bod,
+    pathColor: colors.pendulum2Path
 }));
 
 // Plot settings
@@ -65,10 +58,10 @@ const plotOptions = {
     scale: 1,
     centerOrigin: false,
     drawPoints: false,
-    backgroundColor: plotBackgroundColor,
-    axisColor: plotColors.axis,
-    plotColor: plotColors.plot,
-    pointColor: plotColors.point
+    backgroundColor: colors.plotBackground,
+    axisColor: colors.plotAxis,
+    plotColor: colors.plotPath,
+    pointColor: colors.plotPoint
 };
 
 const ID_AXIS_LABELS = 0, // Axis text labels
@@ -78,11 +71,11 @@ const ID_AXIS_LABELS = 0, // Axis text labels
 const plotter = new Plotter(plotContext, plotOptions);
 
 plotter.addLabel(ID_AXIS_LABELS,
-    new PlotLabel('x = time', 100, 50, plotTextColor))
+    new PlotLabel('x = time', 100, 50, colors.plotLabel))
     .addLabel(ID_AXIS_LABELS,
-        new PlotLabel('y = pendulum1 bob1 x position', 100, 90, pendulum1Colors.path))
+        new PlotLabel('y = pendulum1 bob1 x position', 100, 90, colors.pendulum1Path))
     .addLabel(ID_AXIS_LABELS,
-        new PlotLabel('y = pendulum2 bob1 x position', 100, 130, pendulum2Colors.path)
+        new PlotLabel('y = pendulum2 bob1 x position', 100, 130, colors.pendulum2Path)
     );
 
 plotter.setDataScale(new PlotDataScale(2000, 100))
@@ -107,8 +100,8 @@ function plotDraw(t) {
     plotter.drawLabels(ID_AXIS_LABELS, t);
 
     plotter.drawAll([
-        pendulum1Colors.path,
-        pendulum2Colors.path
+        colors.pendulum1Path,
+        colors.pendulum2Path
     ]);
 }
 
@@ -131,9 +124,8 @@ function update() {
 
     context.setTransform(1, 0, 0, 1, 0, 0);
     context.translate(HALF_WIDTH, HALF_HEIGHT);
-    context.fillStyle = mainBackgroundColor;
+    context.fillStyle = colors.background;
     context.clearRect(-HALF_WIDTH, -HALF_HEIGHT, VIEW_WIDTH, VIEW_HEIGHT);
-    context.fillRect(-HALF_WIDTH, -HALF_HEIGHT, VIEW_WIDTH, VIEW_HEIGHT);
 
     // Update the pendulums
     pendulum1.draw();
