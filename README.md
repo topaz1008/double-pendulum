@@ -27,4 +27,5 @@ Runge-Kutta on the other hand is much more involved, but its very fast and very 
 
 ## TODO
 * Allow switching graph types on-the-fly
-* ...
+* Implement some basic UI components like buttons and/or drop-downs for selecting different graphs
+* Consider re-write in Typescript.
