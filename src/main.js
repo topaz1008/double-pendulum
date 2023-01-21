@@ -3,9 +3,11 @@ import { Plotter, PlotDataScale, PlotMode, PlotLabel } from './plotter.js';
 import { colors } from './color-constants.js';
 import { UIElement } from './ui-element.js';
 
+//const isMobile = window.navigator.userAgentData.mobile;
+
 // General constants
 const VIEW_WIDTH = 1024,
-    VIEW_HEIGHT = 768,
+    VIEW_HEIGHT = 600,
     FPS = 60,
     PI = Math.PI,
     HALF_WIDTH = VIEW_WIDTH / 2,
@@ -26,7 +28,7 @@ const plotType = new UIElement('[role=dropdown]');
 buttons.on('click', (e) => {
     const target = e.target;
     const attributes = target.attributes;
-    const action = attributes.action.value;
+    const action = attributes['data-action'].value;
 
     switch (action) {
         case 'pause': {

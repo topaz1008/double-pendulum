@@ -6,32 +6,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>double-pendulum</title>
     <style>
+        h3, p { margin-bottom: 15px !important; }
+        body { padding-top: 20px; }
+        section { margin-bottom: 20px !important; }
+
         .inline { display: inline-block; }
         .container { padding: 0; }
-        .controls { padding-top: 20px; padding-bottom: 20px; max-width: 1024px; !important; }
+        .controls { margin-top: 15px; margin-bottom: 15px; }
+        .controls > a { margin-left: 15px; }
+
+        #mainContainer, #plotContainer { text-align: center; }
     </style>
     <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
 </head>
 <body>
 
-<main id="mainContainer" class="container"></main>
-<div class="container controls">
-    <div class="inline">
-        <label>
-            Graph Type
-            <select role="dropdown">
-                <option value="bob1xpos" selected>WIP</option>
-                <option value="bob2xpos">Bob 2 X Positions</option>
-                <option value="theta1theta1prime">θ-1 vs θ-1'</option>
-            </select>
-        </label>
+<main class="container">
+    <section class="container">
+        <h3>Double Pendulum</h3>
+        <p>The demo shows how very small changes in initial conditions can make for a very different
+            behaviour of the system in a very short time; thus making it a chaotic system.</p>
+        <p>The demo starts with 2 pendulums using the same initial conditions, one pendulum has one of its
+            starting values changed by EPSILON (default is 1/10000) even with that small of a change the different
+            pendulums will start to diverge after about 5-7 seconds.</p>
+    </section>
+    <section id="mainContainer" class="container">
+        <!-- Main canvas goes here -->
+    </section>
+    <div class="container controls">
+        <div class="inline">
+            <label>
+                Graph Type
+                <select role="dropdown">
+                    <option value="bob1xpos" selected>WIP</option>
+                    <option value="bob2xpos">Bob 2 X Positions</option>
+                    <option value="theta1theta1prime">θ-1 vs θ-1'</option>
+                </select>
+            </label>
+        </div>
+
+        <a href="#" role="button" data-action="reset">Reset</a>
+        <a href="#" role="button" data-action="pause">Pause</a>
     </div>
 
-    <a href="#" role="button" action="pause">Pause</a>
-    <a href="#" role="button" action="reset">Reset</a>
-</div>
-
-<main id="plotContainer" class="container"></main>
+    <section id="plotContainer" class="container">
+        <!-- Bottom plot canvas goes here -->
+    </section>
+</main>
 
 <script src="src/main.js" type="module"></script>
 

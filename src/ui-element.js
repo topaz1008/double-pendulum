@@ -9,6 +9,8 @@ export class UIElement {
     }
 
     on(eventName, callback) {
+        // TODO: Add the action here too so outside callers
+        //       need to add one listener per action
         const elements = this.#elements;
         for (let i = 0; i < elements.length; i++) {
             const el = elements[i];
