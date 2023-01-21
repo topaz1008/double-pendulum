@@ -1,17 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>double-pendulum</title>
     <style>
-        body { margin: 0; background: #000000; color: #fff; }
-        canvas { background: #000; margin: 30px auto auto; display: block; }
-        /*#plot { margin-top: 0; }*/
+        .inline { display: inline-block; }
+        .container { padding: 0; }
+        .controls { padding-top: 20px; padding-bottom: 20px; max-width: 1024px; !important; }
     </style>
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
 </head>
 <body>
+
+<main id="mainContainer" class="container"></main>
+<div class="container controls">
+    <div class="inline">
+        <label>
+            Graph Type
+            <select role="dropdown">
+                <option value="bob1xpos" selected>WIP</option>
+                <option value="bob2xpos">Bob 2 X Positions</option>
+                <option value="theta1theta1prime">θ-1 vs θ-1'</option>
+            </select>
+        </label>
+    </div>
+
+    <a href="#" role="button" action="pause">Pause</a>
+    <a href="#" role="button" action="reset">Reset</a>
+</div>
+
+<main id="plotContainer" class="container"></main>
 
 <script src="src/main.js" type="module"></script>
 

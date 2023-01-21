@@ -251,10 +251,19 @@ export class Plotter {
      * @param colors {Array<String>}
      */
     drawAll(colors) {
-        let i = 0;
-        for (const id in this.#values) {
-            this.#rtPlot.setPlotColor(colors[i++]);
-            this.draw(id);
+        const ids = Object.keys(this.#values);
+        if (ids.length === 0) return; // If nothing was added yet; bail silently
+
+        if (ids.length !== colors.length)  {
+            throw new Error('Plotter->drawAll(): Not enough colors specified for the id(s).');
+        }
+
+        const sortedIds = ids.sort();
+
+        for (let i = 0; i < sortedIds.length; i++) {
+            this.#rtPlot.setPlotColor(colors[i]);
+
+            this.draw(sortedIds[i]);
 
             this.#rtPlot.restorePlotColor();
         }
@@ -300,12 +309,6 @@ export class Plotter {
                 // i.e. we right align text and keep translating it as
                 // the x-axis moves
                 label.x = label.initialX + (time * this.#dataScale.time);
-
-            } else {
-                // Phase space
-                //label.x = x;
-                // TODO: implement
-                console.log('// TODO: implement');
             }
 
             // label.y = y[i];
@@ -313,6 +316,11 @@ export class Plotter {
         }
 
         this.#rtPlot.fillStyle = prevFillStyle;
+    }
+
+    reset() {
+        this.#values = {};
+        this.#counts = {};
     }
 
     //////////////////////
@@ -345,6 +353,29 @@ export class Plotter {
 
             counts.y--;
         }
+    }
+
+    /**
+     * Find the min and max values in an array.
+     *
+     * @param arr {Array<Number>}
+     * @param length {Number}
+     * @returns {{min: Number, max: Number}}
+     */
+    #findMinMax(arr, length) {
+        let min = Number.MAX_VALUE;
+        let max = Number.MIN_VALUE;
+        for (let i = 0; i < length; i++) {
+            const value = arr[i];
+            if (value < min) {
+                min = value;
+            }
+            if (value > max) {
+                max = value;
+            }
+        }
+
+        return { min, max };
     }
 
     /**

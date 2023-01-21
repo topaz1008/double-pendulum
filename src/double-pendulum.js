@@ -247,20 +247,20 @@ export class DoublePendulum {
         this.theta1 = y[THETA_1];
         this.theta2 = y[THETA_2];
 
-        dydt[THETA_1] = y[OMEGA_1]; // dTheta1/dt = omega1 by definition
+        this.omega1 = dydt[THETA_1] = y[OMEGA_1]; // dTheta1/dt = omega1 by definition
 
         let denominator = l1 * (M - m2 * cosDtheta * cosDtheta);
 
-        this.omega1 = dydt[OMEGA_1] = (l1 * m2 * y[OMEGA_1] * y[OMEGA_1] * sinDtheta * cosDtheta +
+        dydt[OMEGA_1] = (l1 * m2 * y[OMEGA_1] * y[OMEGA_1] * sinDtheta * cosDtheta +
             l2 * m2 * y[OMEGA_2] * y[OMEGA_2] * sinDtheta -
             g * M * sinTheta1 +
             g * m2 * sinTheta2 * cosDtheta) / denominator;
 
-        dydt[THETA_2] = y[OMEGA_2]; // dTheta2/dt = omega2 by definition
+        this.omega2 = dydt[THETA_2] = y[OMEGA_2]; // dTheta2/dt = omega2 by definition
 
         denominator *= l2 / l1; // Scale by the ratio of rod's length
 
-        this.omega2 = dydt[OMEGA_2] = -((l1 * M * y[OMEGA_1] * y[OMEGA_1] * sinDtheta +
+        dydt[OMEGA_2] = -((l1 * M * y[OMEGA_1] * y[OMEGA_1] * sinDtheta +
             l2 * m2 * y[OMEGA_2] * y[OMEGA_2] * sinDtheta * cosDtheta -
             g * M * sinTheta1 * cosDtheta +
             g * M * sinTheta2) / denominator);

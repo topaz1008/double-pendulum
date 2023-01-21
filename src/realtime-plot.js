@@ -125,8 +125,7 @@ export class RealTimePlot {
         this.context.setTransform(1, 0, 0, 1, 0, 0);
         this.context.scale(this.#scale, this.#scale);
 
-        // this.context.clearRect(0, 0, this.width, this.height);
-        this.context.fillRect(0, 0, this.#width, this.#height);
+        this.context.clearRect(0, 0, this.#width, this.#height);
 
         if (this.mode === PlotMode.NORMAL) {
             const x = (this.#width / 2) - (time * this.dataScale.time);
