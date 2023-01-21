@@ -15,6 +15,9 @@
         .controls { margin-top: 15px; margin-bottom: 15px; }
         .controls > a { margin-left: 15px; }
 
+        .green { color: rgb(0, 255, 0); }
+        .blue { color: rgb(0, 0, 255); }
+
         #mainContainer, #plotContainer { text-align: center; }
     </style>
     <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
@@ -26,7 +29,8 @@
         <h3>Double Pendulum</h3>
         <p>The demo shows how very small changes in initial conditions can make for a very different
             behaviour of the system in a very short time; thus making it a chaotic system.</p>
-        <p>The demo starts with 2 pendulums using the same initial conditions, one pendulum has one of its
+        <p>The demo starts with 2 pendulum; one <i class="green">green</i> and one <i class="blue">blue</i>
+            using nearly the same initial conditions, one pendulum has one of its
             starting values changed by EPSILON (default is 1/10000) even with that small of a change the different
             pendulums will start to diverge after about 5-7 seconds.</p>
     </section>
@@ -37,7 +41,7 @@
         <div class="inline">
             <label>
                 Graph Type
-                <select role="dropdown">
+                <select role="dropdown" data-action="change">
                     <option value="bob1xpos" selected>WIP</option>
                     <option value="bob2xpos">Bob 2 X Positions</option>
                     <option value="theta1theta1prime">θ-1 vs θ-1'</option>

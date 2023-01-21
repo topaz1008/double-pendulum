@@ -3,7 +3,7 @@ import { Plotter, PlotDataScale, PlotMode, PlotLabel } from './plotter.js';
 import { colors } from './color-constants.js';
 import { UIElement } from './ui-element.js';
 
-//const isMobile = window.navigator.userAgentData.mobile;
+// TODO: Refactor this file, its getting big.
 
 // General constants
 const VIEW_WIDTH = 1024,
@@ -20,37 +20,29 @@ const STEP_SIZE = 1 / 1000;
 let time = 0,
     isPaused = false;
 
+// Create the 2 canvas elements and get the context
 const context = createCanvas('main', VIEW_WIDTH, VIEW_HEIGHT, 'mainContainer');
 const plotContext = createCanvas('plot', VIEW_WIDTH, HALF_HEIGHT, 'plotContainer');
 
+// UI Controls
 const buttons = new UIElement('[role=button]');
 const plotType = new UIElement('[role=dropdown]');
-buttons.on('click', (e) => {
+buttons.on('pause', 'click', (e) => {
     const target = e.target;
-    const attributes = target.attributes;
-    const action = attributes['data-action'].value;
 
-    switch (action) {
-        case 'pause': {
-            isPaused = !isPaused;
-            target.innerText = (isPaused) ? 'Unpause' : 'Pause';
-        }
-        break;
-
-        case 'reset': {
-            createPendulums();
-            plotter.reset();
-        }
-        break;
-
-        default: break;
-    }
+    isPaused = !isPaused;
+    target.innerText = (isPaused) ? 'Unpause' : 'Pause';
 });
-plotType.on('change', (e) => {
+buttons.on('reset', 'click', (e) => {
+    createPendulums();
+    plotter.reset();
+});
+plotType.on('change', 'change', (e) => {
     const target = e.target;
     console.log('dropdown value', target.value);
 });
 
+// Pendulums
 const pendulumOptions = {
     gravity: 9.81,
     origin: { x: 0, y: 0 },

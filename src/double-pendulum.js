@@ -171,7 +171,8 @@ export class DoublePendulum {
             const p0 = this.path[i];
             const p1 = this.path[i + 1];
 
-            const c = this.pathColor.interpolate(1 - (i / pathLength), this.backgroundColor);
+            const t = 1 - (i / pathLength);
+            const c = this.pathColor.interpolate(t, this.backgroundColor);
 
             this.context.strokeStyle = c.toString();
             this.context.beginPath();
