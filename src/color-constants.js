@@ -3,7 +3,7 @@
  */
 export const colors = {
     // Main pendulum simulation colors
-    background: 'rgb(0,0,0)',
+    background: 'rgb(17,25,31)',
 
     // Pendulum 1
     pendulum1Rod: 'rgb(0,0,255)',

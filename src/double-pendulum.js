@@ -11,6 +11,7 @@ const DEFAULT_OPTIONS = {
     m1: 1, // Mass of bob 1 (top)
     l2: 1, // Length of rod 2 (bottom)
     m2: 1, // Mass of bob 2 (bottom)
+    backgroundColor: 'rgb(0,0,0)',
     rodColor: 'rgb(0,204,0)',
     bobColor: 'rgb(255,255,255)',
     pathColor: 'rgb(0,204,0)'
@@ -24,8 +25,8 @@ const THETA_1 = 0,
 
 export class DoublePendulum {
     static TIME_SCALE = 1 / 1.15;
-    static MAX_PATH_POINTS = 300;
-    static PATH_SIMPLIFY = 1;
+    static MAX_PATH_POINTS = 150;
+    static PATH_SIMPLIFY = 2;
 
     // Graphics scaling
     static ROD_SCALE = 125;
@@ -53,6 +54,7 @@ export class DoublePendulum {
 
         this.time = 0;
 
+        this.backgroundColor = Color.fromString(options.backgroundColor);
         this.rodColor = Color.fromString(options.rodColor);
         this.bobColor = Color.fromString(options.bobColor);
         this.pathColor = Color.fromString(options.pathColor);
@@ -163,17 +165,13 @@ export class DoublePendulum {
     #drawPath() {
         const pathLength = this.path.length;
 
-        // Save current operation and change it
-        const prevOperation = this.context.globalCompositeOperation;
-        this.context.globalCompositeOperation = 'screen';
-
         this.context.lineWidth = 2;
 
         for (let i = 0; i < (pathLength - 1); i++) {
             const p0 = this.path[i];
             const p1 = this.path[i + 1];
 
-            const c = this.pathColor.scale(i / pathLength);
+            const c = this.pathColor.interpolate(1 - (i / pathLength), this.backgroundColor);
 
             this.context.strokeStyle = c.toString();
             this.context.beginPath();
@@ -183,9 +181,6 @@ export class DoublePendulum {
             // this.context.closePath();
             this.context.stroke();
         }
-
-        // Restore previous operation
-        this.context.globalCompositeOperation = prevOperation;
     }
 
     /**

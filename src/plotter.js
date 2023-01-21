@@ -318,6 +318,9 @@ export class Plotter {
         this.#rtPlot.fillStyle = prevFillStyle;
     }
 
+    /**
+     * Resets all values (deletes all current data)
+     */
     reset() {
         this.#values = {};
         this.#counts = {};

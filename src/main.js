@@ -53,6 +53,7 @@ const pendulumOptions = {
     gravity: 9.81,
     origin: { x: 0, y: 0 },
     stepSize: STEP_SIZE,
+    backgroundColor: colors.background,
     l1: 1, // Length of rod 1 (top)
     m1: 1, // Mass of bob 1 (top)
     l2: 1, // Length of rod 2 (bottom)

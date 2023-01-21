@@ -16,6 +16,14 @@ export class Color {
         return new Color(r, g, b);
     }
 
+    interpolate(t, rhs) {
+        const r = this.r + t * (rhs.r - this.r);
+        const g = this.g + t * (rhs.g - this.g);
+        const b = this.b + t * (rhs.b - this.b);
+
+        return new Color(r, g, b);
+    }
+
     clone() {
         return new Color(this.r, this.g, this.b);
     }
