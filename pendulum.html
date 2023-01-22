@@ -20,12 +20,24 @@
             behaviour of the system in a very short time; thus making it a chaotic system.</p>
         <p>The demo starts with 2 double pendulums; one <i class="green">green</i> and one <i class="blue">blue</i>
             using nearly the same initial conditions, one pendulum has one of its
-            starting angles changed by <span style="font-size: 25px;">$\epsilon$</span> (default is $1/10,000$) even with that small of a change the different
+            starting angles changed by <span style="font-size: 25px;">$\epsilon$</span> (default is $1/10,000$) even
+            with that small of a change the different
             pendulums will start to diverge after about 5-7 seconds.</p>
 
-        <p>Credits: This demo uses <a href="https://picocss.com/" target="_blank">Pico.css</a> library for styling and <a href="https://www.mathjax.org/" target="_blank">MathJax</a> to parse and display LaTeX math formulas.</p>
-
-        <p style="color: red;">NOTE: Value manipulation is WIP. some work, some dont.</p>
+        <p style="color: red; border: 1px red solid; padding: 5px;">
+            <!-- TODO: remove this when everything works -->
+            NOTE: Value manipulation is WIP. some work, some dont.
+        </p>
+    </details>
+    <details>
+        <summary>Source Code</summary>
+        <p>Can be found on <a href="https://github.com/topaz1008/double-pendulum" target="_blank">Github</a>.</p>
+    </details>
+    <details>
+        <summary>Credits</summary>
+        <p>This demo uses <a href="https://picocss.com/" target="_blank">Pico.css</a> library for styling and <a
+                href="https://www.mathjax.org/" target="_blank">MathJax</a> to parse and display LaTeX math formulas.
+        </p>
     </details>
 </header>
 
@@ -138,14 +150,14 @@
                     <option value="theta1theta1prime">theta1 vs. theta1 prime</option>
                 </select>
             </label>
-<!--            <details id="plot-type" role="list">-->
-<!--                <summary role="button" aria-haspopup="listbox">Bob 1 x Positions</summary>-->
-<!--                <ul role="listbox">-->
-<!--                    <li><a>Bob 1 x Positions</a></li>-->
-<!--                    <li><a>Bob 2 X Positions</a></li>-->
-<!--                    <li><a>Option 2</a></li>-->
-<!--                </ul>-->
-<!--            </details>-->
+            <!--            <details id="plot-type" role="list">-->
+            <!--                <summary role="button" aria-haspopup="listbox">Bob 1 x Positions</summary>-->
+            <!--                <ul role="listbox">-->
+            <!--                    <li><a>Bob 1 x Positions</a></li>-->
+            <!--                    <li><a>Bob 2 X Positions</a></li>-->
+            <!--                    <li><a>Option 2</a></li>-->
+            <!--                </ul>-->
+            <!--            </details>-->
 
         </fieldset>
 
@@ -157,7 +169,7 @@
 
 <!-- Scripts -->
 <script>
-    (function(window) {
+    (function (window) {
         // This will parse any LaTeX found on the page
         // and render it as svg math formula
         const pageReady = () => {

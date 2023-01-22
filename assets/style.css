@@ -68,6 +68,10 @@ input[type=range] {
     margin-left: 15px;
 }
 
+details p {
+    margin-bottom: 5px;
+}
+
 #canvas-container > fieldset {
     padding: 15px;
 }
