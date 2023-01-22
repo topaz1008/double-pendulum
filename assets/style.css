@@ -1,5 +1,6 @@
-/* This will make the canvas responsive without the need to resize */
+/* TODO: replace this with scss urgently!  */
 canvas {
+    /* This will make the canvas responsive without the need to resize */
     width: 100%;
     object-fit: contain;
 }
@@ -10,6 +11,10 @@ canvas {
 
 .blue {
     color: rgb(0, 0, 255);
+}
+
+.hidden {
+    display: none;
 }
 
 header {
@@ -29,10 +34,6 @@ body canvas {
     cursor: default;
     margin: 50px auto auto auto;
     display: block;
-}
-
-#plotContainer {
-    text-align: center;
 }
 
 fieldset {
@@ -75,7 +76,21 @@ input[type=range] {
     padding: 15px;
 }
 
-.my-container {
+#plot-container {
+    text-align: center;
+}
+
+#loading-spinner {
+    text-align: center;
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 50px;
+}
+
+.t1008-grid {
     max-width: 1280px;
     display: grid;
     grid-template-columns: 0.5fr 1.5fr;

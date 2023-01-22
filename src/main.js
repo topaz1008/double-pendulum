@@ -58,8 +58,8 @@ let time = 0,
     y0_2 = [(3 * PI / 4) + EPSILON, PI, 0, 0];
 
 // Create the 2 canvas elements and get the context
-const context = createCanvas('mainContainer', VIEW_WIDTH, VIEW_HEIGHT);
-const plotContext = createCanvas('plotContainer', VIEW_WIDTH, HALF_HEIGHT);
+const context = createCanvas('main-container', VIEW_WIDTH, VIEW_HEIGHT);
+const plotContext = createCanvas('plot-container', VIEW_WIDTH, HALF_HEIGHT);
 
 // ui control list
 // 1. 2nd pendulum on/off (DONE)
