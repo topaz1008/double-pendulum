@@ -1,16 +1,27 @@
-/* TODO: replace this with scss urgently!  */
+/* TODO: replace this with scss urgently! */
+:root {
+    --green: rgb(0, 255, 0);
+    --blue: rgb(0, 0, 255);
+
+    --max-width: 1280px;
+}
+
 canvas {
     /* This will make the canvas responsive without the need to resize */
     width: 100%;
     object-fit: contain;
+    margin: 0;
+    padding: 0;
+    cursor: default;
+    display: block;
 }
 
 .green {
-    color: rgb(0, 255, 0);
+    color: var(--green);
 }
 
 .blue {
-    color: rgb(0, 0, 255);
+    color: var(--blue);
 }
 
 .hidden {
@@ -18,7 +29,7 @@ canvas {
 }
 
 header {
-    max-width: 1280px;
+    max-width: var(--max-width);
     margin: 50px auto auto auto;
 }
 
@@ -28,12 +39,6 @@ header, main {
 
 section {
     margin: 0 !important;
-}
-
-body canvas {
-    cursor: default;
-    margin: 50px auto auto auto;
-    display: block;
 }
 
 fieldset {
@@ -80,6 +85,15 @@ details p {
     padding: 15px;
 }
 
+#plot-type {
+    margin-top: 1rem;
+}
+
+label[for=draw-points] {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
 #plot-container {
     text-align: center;
 }
@@ -95,12 +109,11 @@ details p {
 }
 
 .t1008-grid {
-    max-width: 1280px;
+    max-width: var(--max-width);
     display: grid;
     grid-template-columns: 0.5fr 1.5fr;
     grid-template-rows: 1.6fr 0.4fr;
     gap: 0 0;
     grid-auto-flow: row;
-    grid-template-areas: ". ."
-                                 ". .";
+    grid-template-areas: '. .' '. .';
 }

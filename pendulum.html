@@ -134,7 +134,7 @@
     </div>
     <div id="canvas-container">
         <section id="main-container" class="">
-            <!-- placeholder for the real canvas -->
+            <!-- main canvas goes here -->
         </section>
 
         <fieldset>
@@ -142,27 +142,27 @@
                 <input type="checkbox" id="draw-points" name="draw-points" role="checkbox" data-action="change">
                 Draw integration sample points?
             </label>
-            <label for="plot-type">
-                Graph Type
-                <select id="plot-type" role="combobox" data-action="change">
-                    <option value="bob1xpos" selected>Bob 1 X Positions</option>
-                    <option value="bob2xpos">Bob 2 X Positions</option>
-                    <option value="theta1theta1prime">theta1 vs. theta1 prime</option>
-                </select>
-            </label>
-            <!--            <details id="plot-type" role="list">-->
-            <!--                <summary role="button" aria-haspopup="listbox">Bob 1 x Positions</summary>-->
-            <!--                <ul role="listbox">-->
-            <!--                    <li><a>Bob 1 x Positions</a></li>-->
-            <!--                    <li><a>Bob 2 X Positions</a></li>-->
-            <!--                    <li><a>Option 2</a></li>-->
-            <!--                </ul>-->
-            <!--            </details>-->
+            <!--            <label for="plot-type">-->
+            <!--                Graph Type-->
+            <!--                <select id="plot-type" role="combobox" data-action="change">-->
+            <!--                    <option value="bob1xpos" selected>Bob 1 X Positions</option>-->
+            <!--                    <option value="bob2xpos">Bob 2 X Positions</option>-->
+            <!--                    <option value="theta1theta1prime">$\theta _1 vs. \theta' _1$</option>-->
+            <!--                </select>-->
+            <!--            </label>-->
+
+            <details id="plot-type" role="list">
+                <summary role="button" aria-haspopup="listbox">Graph Type</summary>
+                <ul role="listbox">
+                    <li><a>Bob 1 x positions</a></li>
+                    <li><a>$\theta _1 vs. \omega _1$</a></li>
+                </ul>
+            </details>
 
         </fieldset>
 
         <section id="plot-container" class="">
-            <!-- placeholder for the real canvas -->
+            <!-- plot canvas goes here -->
         </section>
     </div>
 </main>
@@ -172,7 +172,20 @@
     (function (window) {
         // This will parse any LaTeX found on the page
         // and render it as svg math formula
-        const pageReady = () => {
+
+        // This is really stupid
+        // Sometime MathJax fails to load and the entire page hangs.
+        // So we give it 3 seconds to load, if not, we continue without it.
+        // FIXME: Consider using an npm installed version instead of cdn and package it with webpack
+        let pageReadyCalled = false;
+        setTimeout(() => {
+            if (pageReadyCalled === false) {
+                console.warn('Loading MathJax failed, continue without it.');
+                unHide();
+            }
+        }, 3000);
+
+        function unHide() {
             // Everything starts as hidden.
             // When MathJax is finished parsing the page, we un-hide it.
             const header = document.getElementById('header');
@@ -189,7 +202,7 @@
             // Un-hide main section
             main.classList.remove('hidden');
             main.classList.add('t1008-grid');
-        };
+        }
 
         window.MathJax = {
             tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
@@ -199,7 +212,10 @@
             startup: {
                 'pageReady': () => {
                     // Called by MathJax when it is done parsing the page.
-                    return MathJax.startup.defaultPageReady().then(pageReady);
+                    return MathJax.startup.defaultPageReady().then(() => {
+                        pageReadyCalled = true;
+                        unHide();
+                    });
                 }
             }
         };
