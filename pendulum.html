@@ -23,7 +23,7 @@
             starting angles changed by <span style="font-size: 25px;">$\epsilon$</span> (default is $1/10,000$) even with that small of a change the different
             pendulums will start to diverge after about 5-7 seconds.</p>
 
-        <p>Credits: This demo uses <a href="https://picocss.com/">Pico.css</a> library for styling and <a href="https://www.mathjax.org/">MathJax</a> to parse and display LaTeX math formulas.</p>
+        <p>Credits: This demo uses <a href="https://picocss.com/" target="_blank">Pico.css</a> library for styling and <a href="https://www.mathjax.org/" target="_blank">MathJax</a> to parse and display LaTeX math formulas.</p>
 
         <p style="color: red;">NOTE: Value manipulation is WIP. some work, some dont.</p>
     </details>
@@ -65,6 +65,14 @@
                 Step size (inverse)
                 <input type="range" min="10" max="1000" step="50" value="1000" id="step-size" name="range"
                        data-action="change">
+            </label>
+
+            <label for="method">
+                Integration Method
+                <select id="method" role="combobox" data-action="change">
+                    <option value="rk4" selected>Classical RK4</option>
+                    <option value="euler">Euler's Forward</option>
+                </select>
             </label>
 
             <legend>Initial conditions</legend>
@@ -122,15 +130,15 @@
                 <input type="checkbox" id="draw-points" name="draw-points" role="checkbox" data-action="change">
                 Draw integration sample points?
             </label>
-            <label for="plotType">
+            <label for="plot-type">
                 Graph Type
-                <select id="plotType" role="combobox" data-action="change">
+                <select id="plot-type" role="combobox" data-action="change">
                     <option value="bob1xpos" selected>Bob 1 X Positions</option>
                     <option value="bob2xpos">Bob 2 X Positions</option>
                     <option value="theta1theta1prime">theta1 vs. theta1 prime</option>
                 </select>
             </label>
-<!--            <details id="plotType" role="list">-->
+<!--            <details id="plot-type" role="list">-->
 <!--                <summary role="button" aria-haspopup="listbox">Bob 1 x Positions</summary>-->
 <!--                <ul role="listbox">-->
 <!--                    <li><a>Bob 1 x Positions</a></li>-->
