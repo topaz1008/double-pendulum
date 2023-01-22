@@ -6,7 +6,7 @@ export class UIControlElement {
 
     /**
      * The constructor expects the selector for all elements
-     * you want to register events on.
+     * we want to register events on.
      * The elements must have a data-action attribute that will then
      * be used to register to specific events on it.
      *

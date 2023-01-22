@@ -15,8 +15,8 @@ export class PlotManager {
         this.#plots = plots;
         this.#plotter = new Plotter(context, plotOptions);
 
-        const names = Object.keys(plots);
-        this.#activePlotId = names[0];
+        const ids = Object.keys(plots);
+        this.#activePlotId = ids[0];
 
         const plot = plots[this.#activePlotId];
         this.setPlotLabels(this.#activePlotId, plot.labels);
@@ -71,6 +71,10 @@ export class PlotManager {
 
     reset() {
         this.#plotter.reset();
+    }
+
+    toggleDrawPoints() {
+        this.#plotter.toggleDrawPoints();
     }
 
 }

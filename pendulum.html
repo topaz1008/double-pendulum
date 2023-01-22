@@ -4,28 +4,12 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>double-pendulum</title>
-    <style>
-        h3, p { margin-bottom: 15px !important; }
-        body { padding-top: 20px; }
-        section { margin-bottom: 20px !important; }
-
-        .inline { display: inline-block; }
-        .container { padding: 0; }
-        .controls { margin-top: 15px; margin-bottom: 15px; }
-        .controls > a { margin-left: 15px; }
-
-        .green { color: rgb(0, 255, 0); }
-        .blue { color: rgb(0, 0, 255); }
-
-        #mainContainer, #plotContainer { text-align: center; }
-    </style>
+    <title>Double Pendulum Simulation - topaz1008</title>
     <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
+    <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
-
-<main class="container">
-
+<header>
     <h3>Double Pendulum</h3>
     <details open>
         <summary>More info</summary>
@@ -35,93 +19,133 @@
             using nearly the same initial conditions, one pendulum has one of its
             starting angle changed by EPSILON (default is 1/10000) even with that small of a change the different
             pendulums will start to diverge after about 5-7 seconds.</p>
+
+        <p style="color: red;">NOTE: Value manipulation is WIP. some work, some might work some wont.</p>
     </details>
+</header>
 
-    <a href="#" role="button" data-action="reset">
-        Reset
-    </a>
-    <a href="#" role="button" data-action="pause">
-        Pause
-    </a>
+<main class="my-container">
+    <div class="controls">
+        <fieldset>
+            <legend>Manipulate</legend>
+            <fieldset class="buttons-fieldset">
+                <a href="#" role="button" data-action="pause">
+                    Pause
+                </a>
+                <a href="#" role="button" data-action="reset">
+                    Reset
+                </a>
+            </fieldset>
 
-    <section id="mainContainer" class="container">
-        <!-- Main canvas goes here -->
-    </section>
+            <fieldset class="switch-fieldset">
+                <label for="second-pendulum">
+                    <input type="checkbox" checked id="second-pendulum" name="switch" role="switch"
+                           data-action="change">
+                    Draw 2nd Pendulum
+                </label>
+            </fieldset>
 
-    <fieldset>
-        <legend>Radios</legend>
-        <label for="small">
-            <input type="radio" id="small" name="size" value="small" checked>
-            Small
-        </label>
+            <legend>General Parameters</legend>
+            <label for="time-scaling">
+                <span>Time Scaling</span>
+                <input type="range" min="0.05" max="2" step="0.15" value="1.15" id="time-scaling" name="range"
+                       data-action="change">
+            </label>
+            <label for="gravity">
+                Gravity
+                <input type="range" min="-10" max="15" step="0.5" value="9.81" id="gravity" name="range"
+                       data-action="change">
+            </label>
+            <label for="step-size">
+                Step size (inverse)
+                <input type="range" min="10" max="1000" step="50" value="1000" id="step-size" name="range"
+                       data-action="change">
+            </label>
 
-        <label for="large">
-            <input type="radio" id="large" name="size" value="large">
-            Large
-        </label>
-    </fieldset>
+            <legend>Initial conditions</legend>
+            <label for="initial-theta1">
+                $\theta _1$
+                <input type="range" min="-3.14159" max="3.14159" step="0.25" value="2.356" id="initial-theta1"
+                       name="range" data-action="change">
+            </label>
+            <label for="initial-theta2">
+                $\theta _2$
+                <input type="range" min="-3.14159" max="3.14159" step="0.25" value="3.14159" id="initial-theta2"
+                       name="range" data-action="change">
+            </label>
+            <label for="initial-omega1">
+                $\omega _1$
+                <input type="range" min="-5" max="5" step="0.25" value="0" id="initial-omega1" name="range"
+                       data-action="change">
+            </label>
+            <label for="initial-omega2">
+                $\omega _2$
+                <input type="range" min="-5" max="5" step="0.25" value="0" id="initial-omega2" name="range"
+                       data-action="change">
+            </label>
 
-    <fieldset>
-        <legend>Checkboxes</legend>
-        <label for="terms">
-            <input type="checkbox" id="terms" name="terms">
-            Checkbox
-        </label>
-    </fieldset>
+            <legend>Pendulum Parameters</legend>
+            <label for="rod1-length">
+                Rod 1 Length
+                <input type="range" min="0.25" max="3" step="0.25" value="1" id="rod1-length" name="range"
+                       data-action="change">
+            </label>
+            <label for="bob1-mass">
+                Bob 1 Mass
+                <input type="range" min="0.25" max="3" step="0.25" value="1" id="bob1-mass" name="range"
+                       data-action="change">
+            </label>
+            <label for="rod2-length">
+                Rod 2 Length
+                <input type="range" min="0.25" max="3" step="0.25" value="1" id="rod2-length" name="range"
+                       data-action="change">
+            </label>
+            <label for="bob2-mass">
+                Bob 2 Mass
+                <input type="range" min="0.25" max="3" step="0.25" value="1" id="bob2-mass" name="range"
+                       data-action="change">
+            </label>
+        </fieldset>
+    </div>
+    <div id="canvas-container">
+        <section id="mainContainer" class="">
+            <!-- placeholder for the real canvas -->
+        </section>
 
-    <fieldset>
-        <legend>Switches</legend>
-        <label for="switch">
-            <input type="checkbox" id="switch" name="switch" role="switch">
-            On/Off Switch
-        </label>
-    </fieldset>
-
-    <fieldset>
-        <legend>Range sliders</legend>
-        <label for="range">
-            A value
-            <input type="range" min="1" max="5" step="0.5" value="1" id="range" name="range" data-action="change">
-        </label>
-    </fieldset>
-    <div class="container controls">
-        <div class="inline">
-            <label for="plotType">Graph Type</label>
+        <fieldset>
+            <label for="draw-points">
+                <input type="checkbox" id="draw-points" name="draw-points" role="checkbox" data-action="change">
+                Draw integration sample points?
+            </label>
+            <label for="plotType">
+                Graph Type
+                <select id="plotType" role="combobox" data-action="change">
+                    <option value="bob1xpos" selected>Bob 1 X Positions</option>
+                    <option value="bob2xpos">Bob 2 X Positions</option>
+                    <option value="theta1theta1prime">theta1 vs. theta1 prime</option>
+                </select>
+            </label>
 <!--            <details id="plotType" role="list">-->
 <!--                <summary role="button" aria-haspopup="listbox">Bob 1 x Positions</summary>-->
 <!--                <ul role="listbox">-->
-<!--                    <li><a>Bob 1 \x Positions</a></li>-->
+<!--                    <li><a>Bob 1 x Positions</a></li>-->
 <!--                    <li><a>Bob 2 X Positions</a></li>-->
-<!--                    <li><a>\begin{align} \theta _1 vs. \theta '_1 \end{align}</a></li>-->
+<!--                    <li><a>Option 2</a></li>-->
 <!--                </ul>-->
 <!--            </details>-->
-            <select id="plotType" role="combobox" data-action="change">
-                <option value="bob1xpos" selected>Bob 1 X Positions</option>
-                <option value="bob2xpos">Bob 2 X Positions</option>
-                <option value="theta1theta1prime">theta1 vs. theta1 prime</option>
-            </select>
-        </div>
+
+        </fieldset>
+
+        <section id="plotContainer" class="">
+            <!-- placeholder for the real canvas -->
+        </section>
     </div>
-
-    <p>
-        \begin{align}
-        \dot{x} &amp; = \sigma(y-x) \\
-        \dot{y} &amp; = \rho x - y - xz \\
-        \dot{z} &amp; = -\beta z + xy
-        \end{align}
-        \begin{equation}
-        \theta _1 \theta '_1 \\
-
-        \omega _1 \omega _2
-        \end{equation}
-    </p>
-
-    <section id="plotContainer" class="container">
-        <!-- Bottom plot canvas goes here -->
-    </section>
 </main>
 
+<!-- Scripts -->
 <script>
+    // This will parse any LaTeX found on the page
+    // And render it as svg math formula
     MathJax = {
         tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
         svg: { fontCache: 'global' }

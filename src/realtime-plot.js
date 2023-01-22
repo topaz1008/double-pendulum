@@ -14,6 +14,7 @@ export class RealTimePlot {
     #width;
     #height;
     #scale;
+    #lineWidth;
     #drawPoints;
     #axisColor;
     #pointColor;
@@ -41,6 +42,7 @@ export class RealTimePlot {
         this.#drawPoints = options.drawPoints;
 
         this.#scale = options.scale;
+        this.#lineWidth = options.lineWidth;
         this.#axisColor = Color.fromString(options.axisColor);
         this.#pointColor = Color.fromString(options.pointColor);
         this.#backgroundColor = Color.fromString(options.backgroundColor);
@@ -63,7 +65,7 @@ export class RealTimePlot {
             throw new Error('RealTimePlot->draw(): Number of x values has to match number of y values.');
         }
 
-        this.context.lineWidth = 2;
+        this.context.lineWidth = this.#lineWidth;
         this.context.strokeStyle = this.#plotColor.toString();
         this.context.beginPath();
 
@@ -88,7 +90,7 @@ export class RealTimePlot {
             this.context.beginPath();
             for (let i = 0; i < xl; i++) {
                 this.context.moveTo(x[i], -y[i]);
-                this.context.arc(x[i], -y[i], 1, 0, TWO_PI);
+                this.context.arc(x[i], -y[i], 2, 0, TWO_PI);
             }
 
             this.context.closePath();
@@ -111,6 +113,13 @@ export class RealTimePlot {
      */
     restorePlotColor() {
         this.#plotColor = this.#prevPlotColor.clone();
+    }
+
+    /**
+     * Toggles drawPoints option on/off.
+     */
+    toggleDrawPoints() {
+        this.#drawPoints = !this.#drawPoints;
     }
 
     /**

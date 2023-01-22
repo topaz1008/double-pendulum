@@ -68,6 +68,7 @@ class PlotOptions {
         width: 1024,
         height: 768 / 2,
         stepSize: 1 / 1000,
+        lineWidth: 2,
         mode: PlotMode.NORMAL,
         scale: 1,
         dataScale: new PlotDataScale(),
@@ -168,6 +169,13 @@ export class Plotter {
         this.#mode = this.#rtPlot.mode = mode;
 
         return this;
+    }
+
+    /**
+     * Toggles drawPoints option on/off.
+     */
+    toggleDrawPoints() {
+        this.#rtPlot.toggleDrawPoints();
     }
 
     /**

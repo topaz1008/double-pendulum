@@ -16,42 +16,12 @@ const VIEW_WIDTH = 1024,
     HALF_WIDTH = VIEW_WIDTH / 2,
     HALF_HEIGHT = VIEW_HEIGHT / 2;
 
+const EPSILON = 1 / 10000;
+
 // Integration settings
 const STEP_SIZE = 1 / 1000;
 
-// State variables
-let time = 0,
-    isPaused = false;
-
-// Create the 2 canvas elements and get the context
-const context = createCanvas('mainContainer', VIEW_WIDTH, VIEW_HEIGHT);
-const plotContext = createCanvas('plotContainer', VIEW_WIDTH, HALF_HEIGHT);
-
-// UI Controls
-const buttons = new UIControlElement('[role=button]');
-const plotType = new UIControlElement('[role=combobox]');
-const rangeSlider = new UIControlElement('input[type=range]');
-rangeSlider.on('change', 'change', (e) => {
-    console.log('slider changed', e.target.value);
-});
-
-buttons.on('pause', 'click', (e) => {
-    const target = e.target;
-
-    isPaused = !isPaused;
-    target.innerText = (isPaused) ? 'Unpause' : 'Pause';
-});
-buttons.on('reset', 'click', (e) => {
-    createPendulums();
-    tmp.reset();
-});
-plotType.on('change', 'change', (e) => {
-    const target = e.target;
-
-    tmp.setActivePlotId(target.value);
-});
-
-// Pendulums
+// Pendulum setting
 const pendulumOptions = {
     gravity: 9.81,
     origin: { x: 0, y: 0 },
@@ -63,28 +33,6 @@ const pendulumOptions = {
     l2: 1, // Length of rod 2 (bottom)
     m2: 1  // Mass of bob 2 (bottom)
 };
-let pendulum1, pendulum2;
-
-function createPendulums() {
-    // Initial conditions [theta1, theta2, omega1, omega2]
-    const y0_1 = [3 * PI / 4, PI, 0, 0];
-    pendulum1 = new DoublePendulum(y0_1, context, Object.assign(pendulumOptions, {
-        rodColor: colors.pendulum1Rod,
-        bobColor: colors.pendulum1Bod,
-        pathColor: colors.pendulum1Path
-    }));
-
-    // Add another pendulum to show how very small changes in the initial conditions
-    // make for drastic change in behaviour in a very short time.
-    // This is what makes this system chaotic.
-    const EPSILON = 1 / 10000;
-    const y0_2 = [(3 * PI / 4) + EPSILON, PI, 0, 0];
-    pendulum2 = new DoublePendulum(y0_2, context, Object.assign(pendulumOptions, {
-        rodColor: colors.pendulum2Rod,
-        bobColor: colors.pendulum2Bod,
-        pathColor: colors.pendulum2Path
-    }));
-}
 
 // Plot settings
 const plotOptions = {
@@ -97,6 +45,129 @@ const plotOptions = {
     plotColor: colors.plotPath,
     pointColor: colors.plotPoint
 };
+
+// State and global variables
+let time = 0,
+    isPaused = false,
+    draw2ndPendulum = true,
+    pendulum1 = null,
+    pendulum2 = null,
+
+    // Initial conditions [theta1, theta2, omega1, omega2]
+    y0_1 = [3 * PI / 4, PI, 0, 0],
+    y0_2 = [(3 * PI / 4) + EPSILON, PI, 0, 0];
+
+// Create the 2 canvas elements and get the context
+const context = createCanvas('mainContainer', VIEW_WIDTH, VIEW_HEIGHT);
+const plotContext = createCanvas('plotContainer', VIEW_WIDTH, HALF_HEIGHT);
+
+// ui control list
+// 1. 2nd pendulum on/off (DONE)
+// 2. time scaling (DONE)
+// 3. gravity
+// 4. step size
+// 5. initial conditions (theta1, theta2, omega1, omega2)
+// 6. pendulum params (rod1 length bob1 mass; rod2 length bob2 mass)
+
+// UI Controls
+const buttonsPauseReset = new UIControlElement('[role=button]');
+const switch2ndPendulum = new UIControlElement('input[role=switch]');
+
+const sliderTimeScale = new UIControlElement('#time-scaling');
+const sliderGravity = new UIControlElement('#gravity');
+const sliderStepSize = new UIControlElement('#step-size');
+
+const sliderInitialTheta1 = new UIControlElement('#initial-theta1');
+const sliderInitialTheta2 = new UIControlElement('#initial-theta2');
+const sliderInitialOmega1 = new UIControlElement('#initial-omega1');
+const sliderInitialOmega2 = new UIControlElement('#initial-omega2');
+
+const sliderRod1Length = new UIControlElement('#rod1-length');
+const sliderBob1Mass = new UIControlElement('#bob1-mass');
+const sliderRod2Length = new UIControlElement('#rod2-length');
+const sliderBob2Mass = new UIControlElement('#bob2-mass');
+
+const checkboxDrawPoints = new UIControlElement('input[role=checkbox]');
+
+buttonsPauseReset.on('pause', 'click', (e) => {
+    e.preventDefault();
+    const target = e.target;
+
+    isPaused = !isPaused;
+    target.innerText = (isPaused) ? 'Unpause' : 'Pause';
+});
+buttonsPauseReset.on('reset', 'click', (e) => {
+    e.preventDefault();
+    reset(true);
+});
+switch2ndPendulum.on('change', 'change', (e) => {
+    e.preventDefault();
+    draw2ndPendulum = !draw2ndPendulum;
+});
+sliderTimeScale.on('change', 'change', (e) => {
+    e.preventDefault();
+    pendulum1.timeScale = pendulum2.timeScale = e.target.value;
+});
+sliderGravity.on('change', 'change', (e) => {
+    e.preventDefault();
+    pendulum1.gravity = pendulum2.gravity = e.target.value;
+});
+sliderStepSize.on('change', 'change', (e) => {
+    e.preventDefault();
+    const value = e.target.value;
+    if (value > Number.EPSILON) {
+        console.log(1 / value);
+        pendulum1.stepSize = pendulum2.stepSize = 1 / value;
+        // TODO: change the plotter step size to match the pendulums step size
+    }
+});
+checkboxDrawPoints.on('change', 'change', (e) => {
+    e.preventDefault();
+    tmp.toggleDrawPoints();
+});
+sliderInitialTheta1.on('change', 'change', (e) => {
+    e.preventDefault();
+
+    const value = e.target.value;
+
+    // TODO: implement global reset function
+
+    y0_1 = [3 * PI / 4, PI, 0, 0];
+    y0_2 = [(3 * PI / 4) + EPSILON, PI, 0, 0];
+    // y0_1[0] = value;
+    // y0_2[0] = value;
+    // console.log(e.target.value);
+    // reset(false);
+});
+
+function reset(resetInitialValues) {
+    // TODO: reset all dom sliders to their original value
+    if (resetInitialValues) {
+        y0_1 = [3 * PI / 4, PI, 0, 0];
+        y0_2 = [(3 * PI / 4) + EPSILON, PI, 0, 0];
+    }
+
+    createPendulums();
+    tmp.reset();
+    time = 0;
+}
+
+function createPendulums() {
+    pendulum1 = new DoublePendulum(y0_1, context, Object.assign(pendulumOptions, {
+        rodColor: colors.pendulum1Rod,
+        bobColor: colors.pendulum1Bod,
+        pathColor: colors.pendulum1Path
+    }));
+
+    // Add another pendulum to show how very small changes in the initial conditions
+    // make for drastic change in behaviour in a very short time.
+    // This is what makes this system chaotic.
+    pendulum2 = new DoublePendulum(y0_2, context, Object.assign(pendulumOptions, {
+        rodColor: colors.pendulum2Rod,
+        bobColor: colors.pendulum2Bod,
+        pathColor: colors.pendulum2Path
+    }));
+}
 
 const ID_P1_BOB1_XPOS = 0, // Pendulum 1 bob 1 x position
     ID_P2_BOB1_XPOS = 1; // Pendulum 2 bob 1 x position
@@ -134,7 +205,7 @@ const tmp = new PlotManager(plotContext, plotOptions, {
     },
     theta1theta1prime: {
         ids: [ID_P1_THETA1, ID_P1_OMEGA1],
-        dataScale: new PlotDataScale(10, 10),
+        dataScale: new PlotDataScale(7, 7),
         mode: PlotMode.PHASE,
         samplePointLimit: 1500,
         pathSimplify: 2,
@@ -161,9 +232,9 @@ function plotStep(t) {
         tmp.step(ID_P2_BOB2_XPOS, t, p2b2.x);
 
     } else if (tmp.activePlotId === 'theta1theta1prime') {
-        tmp.step(ID_P1_THETA1, pendulum1.theta2 , pendulum1.omega2);
-        // console.log(`theta1 ${pendulum1.theta2 / (4 * PI)}`);
-        // console.log(`omega1 ${pendulum1.omega2}`);
+        tmp.step(ID_P1_THETA1, pendulum1.theta1, pendulum1.omega1);
+        // console.log(`theta1 ${pendulum1.theta1}`);
+        // console.log(`omega1 ${pendulum1.omega1}`);
     }
 }
 
@@ -195,7 +266,7 @@ function update() {
     pendulum1.draw();
     if (!isPaused) pendulum1.step();
 
-    pendulum2.draw();
+    if (draw2ndPendulum) pendulum2.draw();
     if (!isPaused) pendulum2.step();
 
     // Update the bottom plot

@@ -32,6 +32,8 @@ export class DoublePendulum {
     static ROD_SCALE = 125;
     static BOB_SCALE = 10;
 
+    #timeScale;
+
     /**
      * A Double pendulum simulation.
      * Will step the physics simulation and render it.
@@ -52,17 +54,16 @@ export class DoublePendulum {
         this.solver = new NDSolve(this.y, equations, this.stepSize, NDSolve.METHOD_RK4);
 
         this.time = 0;
+        this.fps = options.fps;
 
         this.backgroundColor = Color.fromString(options.backgroundColor);
         this.rodColor = Color.fromString(options.rodColor);
         this.bobColor = Color.fromString(options.bobColor);
         this.pathColor = Color.fromString(options.pathColor);
 
-        // How many integration steps to take in one call to step() (one frame).
-        // Since the solver integrates in real-time and uses a fixed step size.
-        // The speed of the simulation is tied to that step size.
-        // this factor allows a control over time scaling according to the fps and an arbitrary timescale constant.
-        this.timeScaleIterations = Math.round((1 / this.stepSize) / options.fps * DoublePendulum.TIME_SCALE);
+        this.#timeScale = options.timeScale || DoublePendulum.TIME_SCALE;
+
+        this.timeScaleIterations = this.#calcTimeScaleIteration(this.#timeScale);
 
         this.gravity = options.gravity;
         this.origin = options.origin;
@@ -81,6 +82,15 @@ export class DoublePendulum {
 
         this.drawCalls = 0;
     }
+
+    get timeScale() {
+        return this.#timeScale;
+    }
+
+    set timeScale(value) {
+        this.timeScaleIterations = this.#calcTimeScaleIteration(value);
+    }
+
 
     /**
      * Step the simulation.
@@ -212,6 +222,19 @@ export class DoublePendulum {
             x: l1Scale * Math.sin(this.y[THETA_1]) + l2Scale * Math.sin(this.y[THETA_2]),
             y: l1Scale * Math.cos(this.y[THETA_1]) + l2Scale * Math.cos(this.y[THETA_2])
         };
+    }
+
+    /**
+     * How many integration steps to take in one call to step() (one frame).
+     * Since the solver integrates in real-time and uses a fixed step size.
+     * The speed of the simulation is tied to that step size.
+     * this factor allows a control over time scaling according to the fps and an arbitrary timescale constant.
+     *
+     * @param timeScale {Number}
+     * @returns {Number}
+     */
+    #calcTimeScaleIteration(timeScale) {
+        return Math.round((1 / this.stepSize) / this.fps * timeScale);
     }
 
     /**
