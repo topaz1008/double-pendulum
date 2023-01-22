@@ -9,7 +9,9 @@
     <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
+
 <div id="loading-spinner" class="" aria-busy="true">&nbsp;&nbsp;Loading...</div>
+
 <header id="header" class="hidden">
     <h3>Double Pendulum</h3>
     <details open>
@@ -18,8 +20,10 @@
             behaviour of the system in a very short time; thus making it a chaotic system.</p>
         <p>The demo starts with 2 double pendulums; one <i class="green">green</i> and one <i class="blue">blue</i>
             using nearly the same initial conditions, one pendulum has one of its
-            starting angle changed by <span style="font-size: 25px;">$\epsilon$</span> (default is $1/10000$) even with that small of a change the different
+            starting angles changed by <span style="font-size: 25px;">$\epsilon$</span> (default is $1/10,000$) even with that small of a change the different
             pendulums will start to diverge after about 5-7 seconds.</p>
+
+        <p>Credits: This demo uses <a href="https://picocss.com/">Pico.css</a> library for styling and <a href="https://www.mathjax.org/">MathJax</a> to parse and display LaTeX math formulas.</p>
 
         <p style="color: red;">NOTE: Value manipulation is WIP. some work, some dont.</p>
     </details>
@@ -145,36 +149,42 @@
 
 <!-- Scripts -->
 <script>
-    // This will parse any LaTeX found on the page
-    // And render it as svg math formula
-    const pageReady = () => {
-        // Everything starts as hidden.
-        // When MathJax is finished parsing the page, we un-hide it.
-        const header = document.getElementById('header');
-        const main = document.getElementById('main');
-        const spinner = document.getElementById('loading-spinner');
-        if (spinner === null || header === null || main === null) {
-            throw new Error('Header, main, or spinner elements not found.');
-        }
-
-        // Un-hide header and hide spinner
-        header.classList.remove('hidden');
-        spinner.classList.add('hidden');
-
-        // Un-hide main section
-        main.classList.remove('hidden');
-        main.classList.add('t1008-grid');
-    };
-
-    MathJax = {
-        tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
-        svg: { fontCache: 'global' },
-        startup: {
-            pageReady: () => {
-                return MathJax.startup.defaultPageReady().then(pageReady);
+    (function(window) {
+        // This will parse any LaTeX found on the page
+        // and render it as svg math formula
+        const pageReady = () => {
+            // Everything starts as hidden.
+            // When MathJax is finished parsing the page, we un-hide it.
+            const header = document.getElementById('header');
+            const main = document.getElementById('main');
+            const spinner = document.getElementById('loading-spinner');
+            if (spinner === null || header === null || main === null) {
+                throw new Error('Header, main, or spinner elements not found.');
             }
-        }
-    };
+
+            // Un-hide header and hide spinner
+            header.classList.remove('hidden');
+            spinner.classList.add('hidden');
+
+            // Un-hide main section
+            main.classList.remove('hidden');
+            main.classList.add('t1008-grid');
+        };
+
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+            svg: { fontCache: 'global' },
+            // Disable MathJax right click menu.
+            options: { renderActions: { addMenu: [] } },
+            startup: {
+                'pageReady': () => {
+                    // Called by MathJax when it is done parsing the page.
+                    return MathJax.startup.defaultPageReady().then(pageReady);
+                }
+            }
+        };
+
+    })(window);
 </script>
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 <script src="src/main.js" type="module"></script>
