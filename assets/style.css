@@ -10,6 +10,7 @@ canvas {
     /* This will make the canvas responsive without the need to resize */
     width: 100%;
     object-fit: contain;
+
     margin: 0;
     padding: 0;
     cursor: default;
@@ -38,7 +39,7 @@ header, main {
 }
 
 section {
-    margin: 0 !important;
+    margin: 0;
 }
 
 fieldset {
@@ -96,6 +97,10 @@ label[for=draw-points] {
 
 #plot-container {
     text-align: center;
+}
+
+#main-container {
+    margin-bottom: 100px;
 }
 
 #loading-spinner {
