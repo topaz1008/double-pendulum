@@ -1,4 +1,4 @@
-// noinspection JSSuspiciousNameCombination
+// noinspection JSSuspiciousNameCombination :)
 
 import { DoublePendulum } from './double-pendulum.js';
 import { PlotDataScale, PlotMode, PlotLabel } from './plotter.js';
@@ -64,12 +64,13 @@ const plotContext = createCanvas('plot-container', VIEW_WIDTH, HALF_HEIGHT);
 // ui control list
 // 1. 2nd pendulum on/off (DONE)
 // 2. time scaling (DONE)
-// 3. gravity
-// 4. step size
+// 3. gravity (DONE)
+// 4. step size (DONE)
 // 5. initial conditions (theta1, theta2, omega1, omega2)
 // 6. pendulum params (rod1 length bob1 mass; rod2 length bob2 mass)
 
 // UI Controls
+// TODO: Refactor this into some 'manager' class
 const buttonsPauseReset = new UIControlElement('[role=button]');
 const switch2ndPendulum = new UIControlElement('input[role=switch]');
 
@@ -123,7 +124,7 @@ sliderStepSize.on('change', 'change', (e) => {
 });
 checkboxDrawPoints.on('change', 'change', (e) => {
     e.preventDefault();
-    tmp.toggleDrawPoints();
+    plotManager.toggleDrawPoints();
 });
 sliderInitialTheta1.on('change', 'change', (e) => {
     e.preventDefault();
@@ -148,7 +149,7 @@ function reset(resetInitialValues) {
     }
 
     createPendulums();
-    tmp.reset();
+    plotManager.reset();
     time = 0;
 }
 
@@ -178,7 +179,7 @@ const ID_P1_BOB2_XPOS = 2,
 const ID_P1_THETA1 = 4,
     ID_P1_OMEGA1 = 5;
 
-const tmp = new PlotManager(plotContext, plotOptions, {
+const plotManager = new PlotManager(plotContext, plotOptions, {
     bob1xpos: {
         ids: [ID_P1_BOB1_XPOS, ID_P2_BOB1_XPOS],
         dataScale: new PlotDataScale(1000, 100),
@@ -223,16 +224,16 @@ function plotStep(t) {
         p2b1 = pendulum2.position1(true),
         p2b2 = pendulum2.position2(true);
 
-    if (tmp.activePlotId === 'bob1xpos') {
-        tmp.step(ID_P1_BOB1_XPOS, t, p1b1.x);
-        tmp.step(ID_P2_BOB1_XPOS, t, p2b1.x);
+    if (plotManager.activePlotId === 'bob1xpos') {
+        plotManager.step(ID_P1_BOB1_XPOS, t, p1b1.x);
+        plotManager.step(ID_P2_BOB1_XPOS, t, p2b1.x);
 
-    } else if (tmp.activePlotId === 'bob2xpos') {
-        tmp.step(ID_P1_BOB2_XPOS, t, p1b2.x);
-        tmp.step(ID_P2_BOB2_XPOS, t, p2b2.x);
+    } else if (plotManager.activePlotId === 'bob2xpos') {
+        plotManager.step(ID_P1_BOB2_XPOS, t, p1b2.x);
+        plotManager.step(ID_P2_BOB2_XPOS, t, p2b2.x);
 
-    } else if (tmp.activePlotId === 'theta1theta1prime') {
-        tmp.step(ID_P1_THETA1, pendulum1.theta1, pendulum1.omega1);
+    } else if (plotManager.activePlotId === 'theta1theta1prime') {
+        plotManager.step(ID_P1_THETA1, pendulum1.theta1, pendulum1.omega1);
         // console.log(`theta1 ${pendulum1.theta1}`);
         // console.log(`omega1 ${pendulum1.omega1}`);
     }
@@ -240,12 +241,13 @@ function plotStep(t) {
 
 function plotDraw(t) {
     // Draw plot
-    tmp.draw(t, [
+    plotManager.draw(t, [
         colors.pendulum1Path,
         colors.pendulum2Path
     ]);
 }
 
+// Start the app
 createPendulums();
 update();
 
