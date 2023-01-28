@@ -1,14 +1,20 @@
-export class NDSolve {
-    static METHOD_EULER_FORWARD = 0;
-    static METHOD_EULER_GENERALIZED = 1;
-    static METHOD_RK4 = 2;
+/**
+ * Integration method enum.
+ */
+export class NDSolveMethod {
+    static EULER_FORWARD = 0;
+    static EULER_GENERALIZED = 1;
+    static RK4 = 2;
+}
 
+/**
+ * A simple numerical differential equations solver.
+ *
+ * Supports the classical Runge-Kutta method (RK4).
+ * and Euler's forward method.
+ */
+export class NDSolve {
     /**
-     * A simple numerical differential equations solver.
-     *
-     * Supports the classical Runge-Kutta method (RK4).
-     * and Euler's forward method.
-     *
      * @param y0 {Array<Number>}
      * @param f {Function}
      * @param stepSize {Number}
@@ -19,7 +25,7 @@ export class NDSolve {
         this.f = f;
         this.dimension = y0.length;
         this.stepSize = stepSize;
-        this.method = method || NDSolve.METHOD_RK4;
+        this.method = method || NDSolveMethod.RK4;
 
         // Temp storage
         this.dydt = new Array(this.dimension);
@@ -30,10 +36,10 @@ export class NDSolve {
 
     step(t) {
         switch (this.method) {
-            case NDSolve.METHOD_EULER_FORWARD: return this.#eulerForwardStep(t);
-            case NDSolve.METHOD_EULER_GENERALIZED: return this.#eulerGeneralizedStep(t);
+            case NDSolveMethod.EULER_FORWARD: return this.#eulerForwardStep(t);
+            case NDSolveMethod.EULER_GENERALIZED: return this.#eulerGeneralizedStep(t);
 
-            case NDSolve.METHOD_RK4:
+            case NDSolveMethod.RK4:
             default: return this.#rk4Step(t);
         }
     }

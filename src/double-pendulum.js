@@ -91,6 +91,9 @@ export class DoublePendulum {
         this.timeScaleIterations = this.#calcTimeScaleIteration(value);
     }
 
+    // set integrationMethod(value) {
+    //     this.solver
+    // }
 
     /**
      * Step the simulation.

@@ -10,9 +10,9 @@
 </head>
 <body>
 
-<div id="loading-spinner" class="" aria-busy="true">&nbsp;&nbsp;Loading...</div>
+<div id="loading-spinner hidden" class="" aria-busy="true">&nbsp;&nbsp;Loading...</div>
 
-<header id="header" class="hidden">
+<header id="header" class="">
     <h3>Double Pendulum</h3>
     <details open>
         <summary>More info</summary>
@@ -41,125 +41,14 @@
     </details>
 </header>
 
-<main id="main" class="hidden"> <!-- t1008-grid -->
-    <div class="controls">
-        <fieldset>
-            <legend>Manipulate</legend>
-            <fieldset class="buttons-fieldset">
-                <a href="#" role="button" data-action="reset">
-                    Reset
-                </a>
-                <a href="#" role="button" data-action="pause">
-                    Pause
-                </a>
-            </fieldset>
+<main id="main" class="t1008-grid"> <!-- t1008-grid -->
+    <div id="gui-container" class="controls">
 
-            <fieldset class="switch-fieldset">
-                <label for="second-pendulum">
-                    <input type="checkbox" checked id="second-pendulum" name="switch" role="switch"
-                           data-action="change">
-                    Draw 2nd Pendulum
-                </label>
-            </fieldset>
-
-            <legend>General Parameters</legend>
-            <label for="time-scaling">
-                <span>Time Scaling</span>
-                <input type="range" min="0.05" max="2" step="0.15" value="1.15" id="time-scaling" name="range"
-                       data-action="change">
-            </label>
-            <label for="gravity">
-                Gravity
-                <input type="range" min="-10" max="15" step="0.5" value="9.81" id="gravity" name="range"
-                       data-action="change">
-            </label>
-            <label for="step-size">
-                Step size (inverse)
-                <input type="range" min="10" max="1000" step="50" value="1000" id="step-size" name="range"
-                       data-action="change">
-            </label>
-
-            <label for="method">
-                Integration Method
-                <select id="method" role="combobox" data-action="change">
-                    <option value="rk4" selected>Classical RK4</option>
-                    <option value="euler">Euler's Forward</option>
-                </select>
-            </label>
-
-            <legend>Initial conditions</legend>
-            <label for="initial-theta1">
-                $\theta _1$
-                <input type="range" min="-3.14159" max="3.14159" step="0.25" value="2.356" id="initial-theta1"
-                       name="range" data-action="change">
-            </label>
-            <label for="initial-omega1">
-                $\omega _1$
-                <input type="range" min="-5" max="5" step="0.25" value="0" id="initial-omega1" name="range"
-                       data-action="change">
-            </label>
-            <label for="initial-theta2">
-                $\theta _2$
-                <input type="range" min="-3.14159" max="3.14159" step="0.25" value="3.14159" id="initial-theta2"
-                       name="range" data-action="change">
-            </label>
-            <label for="initial-omega2">
-                $\omega _2$
-                <input type="range" min="-5" max="5" step="0.25" value="0" id="initial-omega2" name="range"
-                       data-action="change">
-            </label>
-
-            <legend>Pendulum Parameters</legend>
-            <label for="rod1-length">
-                Rod 1 Length
-                <input type="range" min="0.25" max="3" step="0.25" value="1" id="rod1-length" name="range"
-                       data-action="change">
-            </label>
-            <label for="bob1-mass">
-                Bob 1 Mass
-                <input type="range" min="0.25" max="3" step="0.25" value="1" id="bob1-mass" name="range"
-                       data-action="change">
-            </label>
-            <label for="rod2-length">
-                Rod 2 Length
-                <input type="range" min="0.25" max="3" step="0.25" value="1" id="rod2-length" name="range"
-                       data-action="change">
-            </label>
-            <label for="bob2-mass">
-                Bob 2 Mass
-                <input type="range" min="0.25" max="3" step="0.25" value="1" id="bob2-mass" name="range"
-                       data-action="change">
-            </label>
-        </fieldset>
     </div>
     <div id="canvas-container">
         <section id="main-container" class="">
             <!-- main canvas goes here -->
         </section>
-
-        <fieldset>
-            <label for="draw-points">
-                <input type="checkbox" id="draw-points" name="draw-points" role="checkbox" data-action="change">
-                Draw integration sample points?
-            </label>
-            <!--            <label for="plot-type">-->
-            <!--                Graph Type-->
-            <!--                <select id="plot-type" role="combobox" data-action="change">-->
-            <!--                    <option value="bob1xpos" selected>Bob 1 X Positions</option>-->
-            <!--                    <option value="bob2xpos">Bob 2 X Positions</option>-->
-            <!--                    <option value="theta1theta1prime">$\theta _1 vs. \theta' _1$</option>-->
-            <!--                </select>-->
-            <!--            </label>-->
-
-            <details id="plot-type" role="list">
-                <summary role="button" aria-haspopup="listbox">Graph Type</summary>
-                <ul role="listbox">
-                    <li><a>Bob 1 x positions</a></li>
-                    <li><a>$\theta _1 vs. \omega _1$</a></li>
-                </ul>
-            </details>
-
-        </fieldset>
 
         <section id="plot-container" class="">
             <!-- plot canvas goes here -->
@@ -169,60 +58,60 @@
 
 <!-- Scripts -->
 <script>
-    (function (window) {
-        // This will parse any LaTeX found on the page
-        // and render it as svg math formula
-
-        // This is really stupid
-        // Sometime MathJax fails to load and the entire page hangs.
-        // So we give it 3 seconds to load, if not, we continue without it.
-        // FIXME: Consider using an npm installed version instead of cdn and package it with webpack
-        let pageReadyCalled = false;
-        setTimeout(() => {
-            if (pageReadyCalled === false) {
-                console.warn('Loading MathJax failed, continue without it.');
-                unHide();
-            }
-        }, 3000);
-
-        function unHide() {
-            // Everything starts as hidden.
-            // When MathJax is finished parsing the page, we un-hide it.
-            const header = document.getElementById('header');
-            const main = document.getElementById('main');
-            const spinner = document.getElementById('loading-spinner');
-            if (spinner === null || header === null || main === null) {
-                throw new Error('Header, main, or spinner elements not found.');
-            }
-
-            // Un-hide header and hide spinner
-            header.classList.remove('hidden');
-            spinner.classList.add('hidden');
-
-            // Un-hide main section
-            main.classList.remove('hidden');
-            main.classList.add('t1008-grid');
-        }
-
-        window.MathJax = {
-            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
-            svg: { fontCache: 'global' },
-            // Disable MathJax right click menu.
-            options: { renderActions: { addMenu: [] } },
-            startup: {
-                'pageReady': () => {
-                    // Called by MathJax when it is done parsing the page.
-                    return MathJax.startup.defaultPageReady().then(() => {
-                        pageReadyCalled = true;
-                        unHide();
-                    });
-                }
-            }
-        };
-
-    })(window);
+    // (function (window) {
+    //     // This will parse any LaTeX found on the page
+    //     // and render it as svg math formula
+    //
+    //     // This is really stupid
+    //     // Sometime MathJax fails to load and the entire page hangs.
+    //     // So we give it 3 seconds to load, if not, we continue without it.
+    //     // FIXME: Consider using an npm installed version instead of cdn and package it with webpack
+    //     let pageReadyCalled = false;
+    //     setTimeout(() => {
+    //         if (pageReadyCalled === false) {
+    //             console.warn('Loading MathJax failed, continue without it.');
+    //             unHide();
+    //         }
+    //     }, 3000);
+    //
+    //     function unHide() {
+    //         // Everything starts as hidden.
+    //         // When MathJax is finished parsing the page, we un-hide it.
+    //         const header = document.getElementById('header');
+    //         const main = document.getElementById('main');
+    //         const spinner = document.getElementById('loading-spinner');
+    //         if (spinner === null || header === null || main === null) {
+    //             throw new Error('Header, main, or spinner elements not found.');
+    //         }
+    //
+    //         // Un-hide header and hide spinner
+    //         header.classList.remove('hidden');
+    //         spinner.classList.add('hidden');
+    //
+    //         // Un-hide main section
+    //         main.classList.remove('hidden');
+    //         main.classList.add('t1008-grid');
+    //     }
+    //
+    //     window.MathJax = {
+    //         tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+    //         svg: { fontCache: 'global' },
+    //         // Disable MathJax right click menu.
+    //         options: { renderActions: { addMenu: [] } },
+    //         startup: {
+    //             'pageReady': () => {
+    //                 // Called by MathJax when it is done parsing the page.
+    //                 return MathJax.startup.defaultPageReady().then(() => {
+    //                     pageReadyCalled = true;
+    //                     unHide();
+    //                 });
+    //             }
+    //         }
+    //     };
+    //
+    // })(window);
 </script>
-<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<!--<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>-->
 <script src="src/main.js" type="module"></script>
 
 </body>
