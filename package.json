@@ -16,7 +16,9 @@
         "canvas",
         "javascript"
     ],
-    "dependencies": {},
+    "dependencies": {
+        "lil-gui": "^0.17.0"
+    },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 0"
     }
