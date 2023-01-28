@@ -27,7 +27,7 @@ Runge-Kutta on the other hand is much more involved, but its very fast and very 
 
 ## TODO
 * ~~Allow switching graph types on-the-fly~~
-* Implement some basic UI components like buttons and/or drop-downs for selecting different graphs
-* Allow all values to be manipulated in real time and connect all ui elements.
-* Simplify and encapsulate dom event handling and value syncing and resetting. 
+* ~~Implement some basic UI components like buttons and/or drop-downs for selecting different graphs~~
+* ~~Allow all values to be manipulated in real time and connect all ui elements.~~
+* ~~Simplify and encapsulate dom event handling and value syncing and resetting.~~ 
 * Consider re-write in Typescript.
