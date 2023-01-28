@@ -74,7 +74,7 @@ input[type=range] {
 }
 
 details p {
-    margin-bottom: 5px;
+    margin-bottom: 15px;
 }
 
 #canvas-container > fieldset {
@@ -121,16 +121,19 @@ div.lil-gui.root {
 
 div.title[role=button] {
     padding-right: 100px !important;
+    border: 0 !important;
+    transition: none !important;
+    opacity: 1 !important;
 }
 
 div.widget > select {
-     font-size: inherit !important;
+ font-size: inherit !important;
 }
 
 /* lil-gui overrides over pico.css */
 /* FIXME: Could use shadow-dom to do this */
 input:not([type=checkbox], [type=radio], [type=range]) {
-    height: inherit !important;
+    height: inherit;
 }
 
 *[role=button] {

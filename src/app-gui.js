@@ -54,7 +54,7 @@ export class AppGUI {
          * Bottom plot type
          */
         const flBottomPlot = this.#gui.addFolder('Bottom Plot');
-        this.#initBottomPlotControls(flBottomPlot)
+        this.#initBottomPlotControls(flBottomPlot);
 
         /**
          * Colors
@@ -87,8 +87,8 @@ export class AppGUI {
         folder.add(this.#appOptions, 'timeScale', 0.05, 2).step(0.01)
             .name('Time Scaling')
             .onChange(value => {
+                // console.log('timescale changed', value);
                 this.#pendulum1.timeScale = this.#pendulum2.timeScale = value;
-                console.log('timescale', value);
             });
 
         // Gravity
@@ -166,28 +166,28 @@ export class AppGUI {
 
         // Theta 1
         flPendulum1Initial.add(initial, THETA_1, 0, 360).step(45)
-            .name('&theta; 1 (rod 1 angle)')
+            .name('&theta; 1 (Rod 1 Angle)')
             .onChange(value => {
                 setNewAngle(THETA_1, value);
             });
 
         // Theta 2
         flPendulum1Initial.add(initial, THETA_2, 0, 360).step(45)
-            .name('&theta; 2 (rod 2 angle)')
+            .name('&theta; 2 (Rod 2 Angle)')
             .onChange(value => {
                 setNewAngle(THETA_2, value);
             });
 
         // Omega 1
         flPendulum1Initial.add(initial, OMEGA_1, -10, 10).step(0.5)
-            .name('&omega; 1 (rod 1 velocity)')
+            .name('&omega; 1 (Rod 1 Velocity)')
             .onChange(value => {
                 setNewValue(OMEGA_1, value);
             });
 
         // Omega 2
         flPendulum1Initial.add(initial, OMEGA_2, -10, 10).step(0.5)
-            .name('&omega; 2 (rod 2 velocity)')
+            .name('&omega; 2 (Rod 2 Velocity)')
             .onChange(value => {
                 setNewValue(OMEGA_2, value);
             });
@@ -200,7 +200,7 @@ export class AppGUI {
             L2 = 'l2',
             M2 = 'm2';
 
-        const flParameters = this.#gui.addFolder('Pendulums parameters');
+        const flParameters = this.#gui.addFolder('Pendulums Parameters');
 
         // Rod 1 length
         flParameters.add(this.#appOptions, L1, 0.25, 2).step(0.25)
@@ -232,16 +232,6 @@ export class AppGUI {
     }
 
     #initBottomPlotControls(folder) {
-        // Draw integration sample points?
-        folder.add(this.#appOptions, 'drawPoints')
-            .name('Draw integration sample points?')
-            .onChange(value => {
-                this.#plotManager.toggleDrawPoints();
-
-                const stepSize = 1 / this.#appOptions.stepSize;
-                this.#plotManager.setStepSize(stepSize);
-            });
-
         // Plot Type
         const plotType = {
             'Bob 1 X Positions': 'bob1xpos',
@@ -251,8 +241,18 @@ export class AppGUI {
         folder.add(this.#appOptions, 'plotType', plotType)
             .name('Bottom Plot Type')
             .onChange(value => {
-                console.log('type change', value);
+                console.log('plotType changed', value);
                 this.#plotManager.setActivePlotId(value);
+            });
+
+        // Draw integration sample points?
+        folder.add(this.#appOptions, 'drawPoints')
+            .name('Draw integration sample points?')
+            .onChange(value => {
+                this.#plotManager.toggleDrawPoints();
+
+                const stepSize = 1 / this.#appOptions.stepSize;
+                this.#plotManager.setStepSize(stepSize);
             });
     }
 }
