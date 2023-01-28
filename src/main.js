@@ -108,7 +108,7 @@ const plotContext = createCanvas('plot-container', VIEW_WIDTH, HALF_HEIGHT);
 createPendulums();
 createPlotManager();
 const gui = new AppGUI(GUI, {
-    width: 500,
+    width: 375,
     autoPlace: false,
     injectStyles: true
 
