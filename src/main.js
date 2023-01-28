@@ -1,11 +1,11 @@
 import { GUI } from 'https://cdn.jsdelivr.net/npm/lil-gui@0.17/+esm';
 
 import { DoublePendulum } from './double-pendulum.js';
-import { PlotDataScale, PlotMode, PlotLabel } from './plotter.js';
-import { colors } from './color-constants.js';
-import { PlotManager } from './plot-manager.js';
+import { PlotDataScale, PlotMode, PlotLabel } from './plot/plotter.js';
+import { PlotManager } from './plot/plot-manager.js';
 import { AppGUI } from './app-gui.js';
 import { NDSolveMethod } from './ndsolve.js';
+import { colors } from './colors/color-constants.js';
 
 // General constants
 const VIEW_WIDTH = 1024,

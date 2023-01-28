@@ -29,6 +29,11 @@ export class AppGUI {
      */
     #plotManager = null;
 
+    /**
+     * @param GUI {Function} The GUI constructor for lil-gui
+     * @param guiOptions {Object} Object to pass on to lil-gui
+     * @param appOptions {Object} Our app settings object
+     */
     constructor(GUI, guiOptions, appOptions) {
         this.#gui = new GUI(guiOptions);
         this.#appOptions = appOptions;

@@ -1,4 +1,4 @@
-import { Color } from './color.js';
+import { Color } from '../colors/color.js';
 import { PlotMode } from './plotter.js';
 
 const TWO_PI = 2 * Math.PI;

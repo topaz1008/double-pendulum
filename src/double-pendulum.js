@@ -1,5 +1,5 @@
 import { NDSolve } from './ndsolve.js';
-import { Color } from './color.js';
+import { Color } from './colors/color.js';
 
 // Default options
 // Used if no options are passed
