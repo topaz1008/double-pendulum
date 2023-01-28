@@ -1,8 +1,7 @@
-double-pendulum
+Double pendulum simulation in Javascript.
 =====================
-A double pendulum simulation in Javascript.
 
-[Live demo](https://topaz1008.github.io/double-pendulum/pendulum.html); You can pause/unpause the simulation using the `P` key.
+[Live Interactive Demo](https://topaz1008.github.io/double-pendulum/pendulum.html)
 
 The demo shows how very small changes in initial conditions can make for a very different behaviour of the system in a very short time; thus making it a chaotic system.
 
@@ -12,8 +11,7 @@ even with that small of a change the different pendulums will start to diverge a
 
 [Solver test](https://topaz1008.github.io/double-pendulum/solver-test.html); A graph plotter with several equations; was used in developing `NDSolve` numerical differential equations solver.
 
-More information about the math and equations of motion can be found on [Wikipedia](http://en.wikipedia.org/wiki/Double_pendulum) and [Wolfram science world](http://scienceworld.wolfram.com/physics/DoublePendulum.html).
-
+More information about the math and equations of motion can be found on [Wikipedia](https://en.wikipedia.org/wiki/Double_pendulum) and [Wolfram science world](https://scienceworld.wolfram.com/physics/DoublePendulum.html).
 ## NDSolve class
 
 A simple numerical differential equations solver. the solver integrates in real time.
