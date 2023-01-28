@@ -25,10 +25,6 @@ canvas {
     color: var(--blue);
 }
 
-.hidden {
-    display: none;
-}
-
 header {
     max-width: var(--max-width);
     margin: 50px auto auto auto;
@@ -99,19 +95,7 @@ label[for=draw-points] {
     text-align: center;
 }
 
-#main-container {
-    margin-bottom: 100px;
-}
-
-#loading-spinner {
-    text-align: center;
-    margin: 0;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 50px;
-}
+#main-container {}
 
 .t1008-grid {
     max-width: var(--max-width);
@@ -121,6 +105,19 @@ label[for=draw-points] {
     gap: 0 0;
     grid-auto-flow: row;
     grid-template-areas: '. .' '. .';
+}
+
+/* lil-gui customizations */
+div.lil-gui.root {
+    height: 100%;
+}
+
+div.title[role=button] {
+    padding-right: 100px !important;
+}
+
+div.widget > select {
+     font-size: inherit !important;
 }
 
 /* lil-gui overrides over pico.css */

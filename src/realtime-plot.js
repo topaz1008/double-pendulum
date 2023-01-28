@@ -123,6 +123,16 @@ export class RealTimePlot {
     }
 
     /**
+     * Sets the plot step size
+     */
+    setStepSize(inverseStepSize) {
+        // Avoid divide by zero
+        if (inverseStepSize > Number.EPSILON) {
+            this.#stepSize = 1 / inverseStepSize;
+        }
+    }
+
+    /**
      * Clears the canvas
      *
      * @param time {Number}

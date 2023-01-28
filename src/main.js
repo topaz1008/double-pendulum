@@ -1,5 +1,3 @@
-// noinspection JSSuspiciousNameCombination :)
-
 import { GUI } from 'https://cdn.jsdelivr.net/npm/lil-gui@0.17/+esm';
 
 import { DoublePendulum } from './double-pendulum.js';
@@ -9,51 +7,75 @@ import { PlotManager } from './plot-manager.js';
 import { AppGUI } from './app-gui.js';
 import { NDSolveMethod } from './ndsolve.js';
 
-// TODO: Refactor this file, its getting big.
-
 // General constants
 const VIEW_WIDTH = 1024,
     VIEW_HEIGHT = 600,
     FPS = 60,
-    PI = Math.PI,
     HALF_WIDTH = VIEW_WIDTH / 2,
     HALF_HEIGHT = VIEW_HEIGHT / 2;
 
 const EPSILON = 1 / 10000;
 
+// Bottom plot type id(s)
+const ID_P1_BOB1_XPOS = 0, // Pendulum 1 bob 1 x position
+    ID_P2_BOB1_XPOS = 1; // Pendulum 2 bob 1 x position
+const ID_P1_BOB2_XPOS = 2,
+    ID_P2_BOB2_XPOS = 3;
+const ID_P1_THETA1 = 4,
+    ID_P1_OMEGA1 = 5;
+
 // State and global variables
 let time = 0,
     isPaused = false,
     pendulum1 = null,
-    pendulum2 = null;
+    pendulum2 = null,
+    plotManager = null;
 
-// ui control list
-// 6. initial conditions (theta1, theta2, omega1, omega2)
-// 7. pendulum params (rod1 length bob1 mass; rod2 length bob2 mass)
-// 8. bottom graph type
-// 9. draw sample points?
-
-// Set up the gui
+// This big object holds most of the parameters and state of the app
+// The gui will directly manipulate some of these values.
 const appOptions = {
+    // General app parameters
+    width: VIEW_WIDTH,
+    height: HALF_HEIGHT,
+
+    // General simulation parameters
     timeScale: 1,
     gravity: 9.81,
     stepSize: 1000,
     epsilon: EPSILON,
-    pendulum1: pendulum1,
-    pendulum2: pendulum2,
     draw2ndPendulum: true,
     integrationMethod: NDSolveMethod.RK4,
 
+    // References the gui needs
+    pendulum1: pendulum1,
+    pendulum2: pendulum2,
+    plotManager: plotManager,
+
+    // Initial conditions
     initialConditions: {
-        theta1: 3 * PI / 4,
-        theta2: PI,
+        theta1: 135,
+        theta2: 180,
         omega1: 0,
         omega2: 0,
         getArray(addEpsilon) {
+            // FIXME: I might do this twice, so check if its needed in AppGUI as well.
+            const TO_RADIANS = Math.PI / 180;
             const theta1 = (addEpsilon) ? this.theta1 + EPSILON : this.theta1;
-            return [theta1, this.theta2, this.omega1, this.omega2];
+
+            return [theta1, this.theta2, this.omega1, this.omega2]
+                .map(value => value * TO_RADIANS);
         }
     },
+
+    // Pendulum parameters
+    l1: 1, // Length of rod 1 (top)
+    m1: 1, // Mass of bob 1 (top)
+    l2: 1, // Length of rod 2 (bottom)
+    m2: 1,  // Mass of bob 2 (bottom)
+
+    // Bottom plot options
+    plotType: 'bob1xpos',
+    drawPoints: false,
 
     pause: () => {
         isPaused = !isPaused;
@@ -63,40 +85,28 @@ const appOptions = {
     },
 };
 
-// Integration settings
-const STEP_SIZE = 1 / 1000;
-
 // Pendulum setting
-const pendulumOptions = {
-    gravity: 9.81,
+const pendulumOptions = Object.assign(appOptions, {
     origin: { x: 0, y: 0 },
-    stepSize: STEP_SIZE,
     fps: FPS,
-    backgroundColor: colors.background,
-    l1: 1, // Length of rod 1 (top)
-    m1: 1, // Mass of bob 1 (top)
-    l2: 1, // Length of rod 2 (bottom)
-    m2: 1  // Mass of bob 2 (bottom)
-};
+    backgroundColor: colors.background
+});
 
 // Plot settings
-const plotOptions = {
-    width: VIEW_WIDTH,
-    height: HALF_HEIGHT,
-    stepSize: STEP_SIZE,
-    drawPoints: false,
+const plotOptions = Object.assign(appOptions, {
     backgroundColor: colors.plotBackground,
     axisColor: colors.plotAxis,
     plotColor: colors.plotPath,
     pointColor: colors.plotPoint
-};
+});
 
 // Create the 2 canvas elements and get the context
 const context = createCanvas('main-container', VIEW_WIDTH, VIEW_HEIGHT);
 const plotContext = createCanvas('plot-container', VIEW_WIDTH, HALF_HEIGHT);
 
-// Create pendulums and the gui
+// Create pendulums, the plot manager, and the gui
 createPendulums();
+createPlotManager();
 const gui = new AppGUI(GUI, {
     width: 500,
     autoPlace: false,
@@ -131,52 +141,45 @@ function createPendulums() {
     }));
 }
 
-const ID_P1_BOB1_XPOS = 0, // Pendulum 1 bob 1 x position
-    ID_P2_BOB1_XPOS = 1; // Pendulum 2 bob 1 x position
-
-const ID_P1_BOB2_XPOS = 2,
-    ID_P2_BOB2_XPOS = 3;
-
-const ID_P1_THETA1 = 4,
-    ID_P1_OMEGA1 = 5;
-
-const plotManager = new PlotManager(plotContext, plotOptions, {
-    bob1xpos: {
-        ids: [ID_P1_BOB1_XPOS, ID_P2_BOB1_XPOS],
-        dataScale: new PlotDataScale(1000, 100),
-        mode: PlotMode.NORMAL,
-        samplePointLimit: 500,
-        pathSimplify: 2,
-        labels: [
-            new PlotLabel('x = time', 100, 50, colors.plotLabel),
-            new PlotLabel('y = pendulum1 bob1 x position', 100, 90, colors.pendulum1Path),
-            new PlotLabel('y = pendulum2 bob1 x position', 100, 130, colors.pendulum2Path)
-        ]
-    },
-    bob2xpos: {
-        ids: [ID_P1_BOB2_XPOS, ID_P2_BOB2_XPOS],
-        dataScale: new PlotDataScale(1000, 50),
-        mode: PlotMode.NORMAL,
-        samplePointLimit: 500,
-        pathSimplify: 2,
-        labels: [
-            new PlotLabel('x = time', 100, 50, colors.plotLabel),
-            new PlotLabel('y = pendulum1 bob2 x position', 100, 90, colors.pendulum1Path),
-            new PlotLabel('y = pendulum2 bob2 x position', 100, 130, colors.pendulum2Path)
-        ]
-    },
-    theta1theta1prime: {
-        ids: [ID_P1_THETA1, ID_P1_OMEGA1],
-        dataScale: new PlotDataScale(7, 7),
-        mode: PlotMode.PHASE,
-        samplePointLimit: 1500,
-        pathSimplify: 2,
-        labels: [
-            new PlotLabel('x = theta1', 100, 50, colors.plotLabel),
-            new PlotLabel('y = omega1', 100, 90, colors.pendulum1Path)
-        ]
-    }
-});
+function createPlotManager() {
+    appOptions.plotManager = plotManager = new PlotManager(plotContext, plotOptions, {
+        bob1xpos: {
+            ids: [ID_P1_BOB1_XPOS, ID_P2_BOB1_XPOS],
+            dataScale: new PlotDataScale(1000, 100),
+            mode: PlotMode.NORMAL,
+            samplePointLimit: 500,
+            pathSimplify: 2,
+            labels: [
+                new PlotLabel('x = time', 100, 50, colors.plotLabel),
+                new PlotLabel('y = pendulum1 bob1 x position', 100, 90, colors.pendulum1Path),
+                new PlotLabel('y = pendulum2 bob1 x position', 100, 130, colors.pendulum2Path)
+            ]
+        },
+        bob2xpos: {
+            ids: [ID_P1_BOB2_XPOS, ID_P2_BOB2_XPOS],
+            dataScale: new PlotDataScale(1000, 50),
+            mode: PlotMode.NORMAL,
+            samplePointLimit: 500,
+            pathSimplify: 2,
+            labels: [
+                new PlotLabel('x = time', 100, 50, colors.plotLabel),
+                new PlotLabel('y = pendulum1 bob2 x position', 100, 90, colors.pendulum1Path),
+                new PlotLabel('y = pendulum2 bob2 x position', 100, 130, colors.pendulum2Path)
+            ]
+        },
+        theta1theta1prime: {
+            ids: [ID_P1_THETA1, ID_P1_OMEGA1],
+            dataScale: new PlotDataScale(7, 7),
+            mode: PlotMode.PHASE,
+            samplePointLimit: 1500,
+            pathSimplify: 2,
+            labels: [
+                new PlotLabel('x = theta1', 100, 50, colors.plotLabel),
+                new PlotLabel('y = omega1', 100, 90, colors.pendulum1Path)
+            ]
+        }
+    });
+}
 
 function plotStep(t) {
     // Step plot
@@ -195,8 +198,7 @@ function plotStep(t) {
 
     } else if (plotManager.activePlotId === 'theta1theta1prime') {
         plotManager.step(ID_P1_THETA1, pendulum1.theta1, pendulum1.omega1);
-        // console.log(`theta1 ${pendulum1.theta1}`);
-        // console.log(`omega1 ${pendulum1.omega1}`);
+
     }
 }
 
@@ -208,15 +210,12 @@ function plotDraw(t) {
     ]);
 }
 
-// Start the app
-update();
-
 /**
  * Main update loop
  */
 function update() {
     if (!isPaused) {
-        time += STEP_SIZE;
+        time += 1 / appOptions.stepSize;
     }
 
     context.setTransform(1, 0, 0, 1, 0, 0);
@@ -256,3 +255,6 @@ function createCanvas(containerId, width, height) {
 
     return context;
 }
+
+// Start the app
+update();

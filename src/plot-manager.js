@@ -77,4 +77,8 @@ export class PlotManager {
         this.#plotter.toggleDrawPoints();
     }
 
+    setStepSize(stepSize) {
+        this.#plotter.setStepSize(stepSize);
+    }
+
 }

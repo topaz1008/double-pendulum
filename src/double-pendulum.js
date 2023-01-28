@@ -48,7 +48,7 @@ export class DoublePendulum {
 
         options = Object.assign(DEFAULT_OPTIONS, options || {});
 
-        this.stepSize = options.stepSize;
+        this.stepSize = 1 / options.stepSize;
 
         const equations = this.#equations.bind(this); // Oh javascript
         this.solver = new NDSolve(this.y, equations, this.stepSize, NDSolve.METHOD_RK4);

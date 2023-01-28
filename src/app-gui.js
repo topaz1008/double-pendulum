@@ -1,6 +1,6 @@
 import { NDSolveMethod } from './ndsolve.js';
 
-const TWO_PI = 2 * Math.PI;
+const TO_RADIANS = Math.PI / 180;
 
 /**
  * A simple wrapper around lil-gui
@@ -13,27 +13,34 @@ export class AppGUI {
 
     #gui = null;
     #appOptions = null;
-    #solver = null;
+
+    /**
+     * @type {null|DoublePendulum}
+     */
     #pendulum1 = null;
+
+    /**
+     * @type {null|DoublePendulum}
+     */
     #pendulum2 = null;
+
+    /**
+     * @type {null|PlotManager}
+     */
     #plotManager = null;
 
     constructor(GUI, guiOptions, appOptions) {
         this.#gui = new GUI(guiOptions);
         this.#appOptions = appOptions;
 
-        // this.#solver = appOptions?.solver;
         this.#pendulum1 = appOptions?.pendulum1;
         this.#pendulum2 = appOptions?.pendulum2;
-        // this.#plotManager = appOptions?.plotManager;
+        this.#plotManager = appOptions?.plotManager;
     }
 
-// ui control list
-// 6. initial conditions (theta1, theta2, omega1, omega2)
-// 7. pendulum params (rod1 length bob1 mass; rod2 length bob2 mass)
-// 8. bottom graph type
-// 9. draw sample points?
     init() {
+        // TODO: This function is huge and only getting bigger,
+        //       Separate into smaller functions and use editor-fold
         // Pause and reset buttons
         const flGeneral = this.#gui.addFolder('General Parameters');
 
@@ -65,10 +72,11 @@ export class AppGUI {
         flGeneral.add(this.#appOptions, 'stepSize', 10, 2000).step(50)
             .name('Step Size (inverse)')
             .onChange(value => {
+                // Avoid divide by zero
                 if (value > Number.EPSILON) {
-                    // Avoid divide by zero
-                    this.#pendulum1.stepSize = this.#pendulum2.stepSize = 1 / value;
-                    // TODO: change the bottom plotter step size to match the pendulums step size
+                    const stepSize = 1 / value;
+                    this.#pendulum1.stepSize = this.#pendulum2.stepSize = stepSize;
+                    this.#plotManager.setStepSize(stepSize);
                 }
             });
 
@@ -84,9 +92,9 @@ export class AppGUI {
             });
 
         /**
-         * Pendulum #1 initial conditions folder
+         * Pendulums (both) initial conditions folder
          */
-        const flPendulum1Initial = this.#gui.addFolder('Pendulum 1 Initial Conditions');
+        const flPendulum1Initial = this.#gui.addFolder('Initial Conditions');
         const initial = this.#appOptions.initialConditions;
 
         const THETA_1 = 'theta1',
@@ -94,55 +102,156 @@ export class AppGUI {
             OMEGA_1 = 'omega1',
             OMEGA_2 = 'omega2';
 
+        // Helper functions
         const resetAndPause = () => {
             this.#appOptions.reset();
             this.#appOptions.pause();
         };
 
+        // Sets a new values on both pendulums
+        // Second pendulum gets EPSILON added
+        const setNewAngle = (name, angle) => {
+            // Force a reset
+            resetAndPause();
+            const radians = angle * TO_RADIANS;
+
+            this.#pendulum1[name] = radians;
+            if (name === 'theta1') {
+                // Only add epsilon to ONE parameter, in this case, theta1
+                this.#pendulum2[name] = radians + this.#appOptions.epsilon;
+
+            } else {
+                this.#pendulum2[name] = radians;
+            }
+
+            resetAndPause();
+        };
         const setNewValue = (name, value) => {
-            // Force a reset when initial conditions change
+            // Force a reset
             resetAndPause();
             this.#pendulum1[name] = value;
-            this.#pendulum2[name] = value + this.#appOptions.epsilon;
+            this.#pendulum2[name] = value;
+
             resetAndPause();
         };
 
+        // Get the onChange callback for lil-gui
         const onChange = (name) => {
             return (value) => {
-                setNewValue(name, value);
+                setNewAngle(name, value);
             };
         };
 
         // Theta 1
-        flPendulum1Initial.add(initial, THETA_1, 0, TWO_PI).step(Math.PI / 4)
-            .name('Pendulum 1 theta 1')
-            .onChange(onChange(THETA_1));
+        flPendulum1Initial.add(initial, THETA_1, 0, 360).step(45)
+            .name('&theta; 1 (rod 1 angle)')
+            .onChange(value => {
+                setNewAngle(THETA_1, value);
+            });
 
         // Theta 2
-        flPendulum1Initial.add(initial, THETA_2, 0, TWO_PI).step(Math.PI / 4)
-            .name('Pendulum 1 theta 2')
-            .onChange(onChange(THETA_2));
+        flPendulum1Initial.add(initial, THETA_2, 0, 360).step(45)
+            .name('&theta; 2 (rod 2 angle)')
+            .onChange(value => {
+                setNewAngle(THETA_2, value);
+            });
 
         // Omega 1
         flPendulum1Initial.add(initial, OMEGA_1, -10, 10).step(0.5)
-            .name('Pendulum 1 omega1')
-            .onChange(onChange(OMEGA_1));
+            .name('&omega; 1 (rod 1 velocity)')
+            .onChange(value => {
+                setNewValue(OMEGA_1, value);
+            });
 
         // Omega 2
         flPendulum1Initial.add(initial, OMEGA_2, -10, 10).step(0.5)
-            .name('Pendulum 1 omega2')
-            .onChange(onChange(OMEGA_2));
+            .name('&omega; 2 (rod 2 velocity)')
+            .onChange(value => {
+                setNewValue(OMEGA_2, value);
+            });
 
+        /**
+         * Pendulums (both) parameters
+         */
+        const L1 = 'l1',
+            M1 = 'm1',
+            L2 = 'l2',
+            M2 = 'm2';
 
-        // this.#gui.add(this.#solver, 'viscosity', viscosities).name('Viscosity');
-        //
-        // this.#gui.add(this.#appOptions, 'drawVelocityField').name('Draw Velocity Field');
-        //
-        // this.#gui.add(this.#solver, 'resetVelocity').name('Reset Velocity');
-        //
+        const flParameters = this.#gui.addFolder('Pendulums parameters');
+
+        // Rod 1 length
+        flParameters.add(this.#appOptions, L1, 0.25, 2).step(0.25)
+            .name('Rod 1 Length')
+            .onChange(value => {
+                setNewValue(L1, value);
+            });
+
+        // Bob 1 mass
+        flParameters.add(this.#appOptions, M1, 0.25, 2).step(0.25)
+            .name('Bob 1 Mass')
+            .onChange(value => {
+                setNewValue(M1, value);
+            });
+
+        // Rod 2 length
+        flParameters.add(this.#appOptions, L2, 0.25, 2).step(0.25)
+            .name('Rod 2 Length')
+            .onChange(value => {
+                setNewValue(L2, value);
+            });
+
+        // Bob 2 mass
+        flParameters.add(this.#appOptions, M2, 0.25, 2).step(0.25)
+            .name('Bob 2 Mass')
+            .onChange(value => {
+                setNewValue(M2, value);
+            });
+
+        /**
+         * Bottom plot type
+         */
+        const flBottomPlot = this.#gui.addFolder('Bottom Plot');
+
+        // Draw integration sample points?
+        flBottomPlot.add(this.#appOptions, 'drawPoints')
+            .name('Draw integration sample points?')
+            .onChange(value => {
+                this.#plotManager.toggleDrawPoints();
+
+                const stepSize = 1 / this.#appOptions.stepSize;
+                this.#plotManager.setStepSize(stepSize);
+            });
+
+        // Plot Type
+        const plotType = {
+            'Bob 1 X Positions': 'bob1xpos',
+            'Bob 2 X Positions': 'bob2xpos',
+            '&theta; vs. &theta;\'': 'theta1theta1prime'
+        };
+        flBottomPlot.add(this.#appOptions, 'plotType', plotType)
+            .name('Bottom Plot Type')
+            .onChange(value => {
+                console.log('type change', value);
+                this.#plotManager.setActivePlotId(value);
+            });
+
+        /**
+         * Colors
+         */
+        const flColors = this.#gui.addFolder('Colors (WIP) NOT WORKING');
+        // TODO: colors; make colors changeable on-the-fly (needs some refactoring)
+        const colors = {
+            'Pendulum 1 Color': '#ff0000',
+            'Pendulum 2 Color': '#00ff00',
+            'Bobs Color': '#0000ff'
+        };
+        flColors.addColor(colors, 'Pendulum 1 Color');
+        flColors.addColor(colors, 'Pendulum 2 Color');
+        flColors.addColor(colors, 'Bobs Color');
 
         // Attach dom element to container
-        document.getElementById(AppGUI.CONTAINER_ELEMENT_ID)
-            ?.appendChild(this.#gui.domElement);
+        const containerElement = document.getElementById(AppGUI.CONTAINER_ELEMENT_ID);
+        containerElement?.appendChild(this.#gui.domElement);
     }
 }

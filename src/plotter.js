@@ -179,6 +179,13 @@ export class Plotter {
     }
 
     /**
+     * Sets the plot step size
+     */
+    setStepSize(stepSize) {
+        this.#rtPlot.setStepSize(stepSize);
+    }
+
+    /**
      * Add text labels for the id passed.
      *
      * @param id {String|Number}
