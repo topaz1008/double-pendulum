@@ -71,6 +71,7 @@ const plotContext = createCanvas('plot-container', VIEW_WIDTH, HALF_HEIGHT);
 
 // UI Controls
 // TODO: Refactor this into some 'manager' class
+//<editor-fold desc="Element construction">
 const buttonsPauseReset = new UIControlElement('[role=button]');
 const switch2ndPendulum = new UIControlElement('input[role=switch]');
 
@@ -87,6 +88,7 @@ const sliderRod1Length = new UIControlElement('#rod1-length');
 const sliderBob1Mass = new UIControlElement('#bob1-mass');
 const sliderRod2Length = new UIControlElement('#rod2-length');
 const sliderBob2Mass = new UIControlElement('#bob2-mass');
+//</editor-fold>
 
 const checkboxDrawPoints = new UIControlElement('input[role=checkbox]');
 
@@ -117,6 +119,7 @@ sliderStepSize.on('change', 'change', (e) => {
     e.preventDefault();
     const value = e.target.value;
     if (value > Number.EPSILON) {
+        // Avoid divide by zero
         console.log(1 / value);
         pendulum1.stepSize = pendulum2.stepSize = 1 / value;
         // TODO: change the plotter step size to match the pendulums step size
