@@ -39,23 +39,52 @@ export class AppGUI {
     }
 
     init() {
-        // TODO: This function is huge and only getting bigger,
-        //       Separate into smaller functions and use editor-fold
-        // Pause and reset buttons
-        const flGeneral = this.#gui.addFolder('General Parameters');
-
         /**
          * General parameters folder
          */
-        flGeneral.add(this.#appOptions, 'pause').name('Pause/Un-pause');
-        flGeneral.add(this.#appOptions, 'reset').name('Reset');
+        const flGeneral = this.#gui.addFolder('General Parameters');
+        this.#initGeneralParameters(flGeneral);
+
+        /**
+         * Pendulums (both) initial conditions folder
+         */
+        this.#initPendulumParameters();
+
+        /**
+         * Bottom plot type
+         */
+        const flBottomPlot = this.#gui.addFolder('Bottom Plot');
+        this.#initBottomPlotControls(flBottomPlot)
+
+        /**
+         * Colors
+         */
+        const flColors = this.#gui.addFolder('Colors (WIP) NOT WORKING');
+        // TODO: colors; make colors changeable on-the-fly (needs some refactoring)
+        const colors = {
+            'Pendulum 1 Color': '#ff0000',
+            'Pendulum 2 Color': '#00ff00',
+            'Bobs Color': '#0000ff'
+        };
+        flColors.addColor(colors, 'Pendulum 1 Color');
+        flColors.addColor(colors, 'Pendulum 2 Color');
+        flColors.addColor(colors, 'Bobs Color');
+
+        // Attach dom element to container
+        const containerElement = document.getElementById(AppGUI.CONTAINER_ELEMENT_ID);
+        containerElement?.appendChild(this.#gui.domElement);
+    }
+
+    #initGeneralParameters(folder) {
+        folder.add(this.#appOptions, 'pause').name('Pause/Un-pause');
+        folder.add(this.#appOptions, 'reset').name('Reset');
 
         // Draw 2nd pendulum?
-        flGeneral.add(this.#appOptions, 'draw2ndPendulum')
+        folder.add(this.#appOptions, 'draw2ndPendulum')
             .name('Draw 2nd Pendulum');
 
         // Time scale
-        flGeneral.add(this.#appOptions, 'timeScale', 0.05, 2).step(0.01)
+        folder.add(this.#appOptions, 'timeScale', 0.05, 2).step(0.01)
             .name('Time Scaling')
             .onChange(value => {
                 this.#pendulum1.timeScale = this.#pendulum2.timeScale = value;
@@ -63,14 +92,14 @@ export class AppGUI {
             });
 
         // Gravity
-        flGeneral.add(this.#appOptions, 'gravity', -15, 15).step(0.5)
+        folder.add(this.#appOptions, 'gravity', -15, 15).step(0.5)
             .name('Gravity')
             .onChange(value => {
                 this.#pendulum1.gravity = this.#pendulum2.gravity = value;
             });
 
         // Step size
-        flGeneral.add(this.#appOptions, 'stepSize', 10, 2000).step(50)
+        folder.add(this.#appOptions, 'stepSize', 10, 2000).step(50)
             .name('Step Size (inverse)')
             .onChange(value => {
                 this.#pendulum1.stepSize = this.#pendulum2.stepSize = value;
@@ -82,15 +111,14 @@ export class AppGUI {
             'Classical Runge-Kutta (RK4)': NDSolveMethod.RK4,
             'Euler\'s Forward': NDSolveMethod.EULER_FORWARD
         };
-        flGeneral.add(this.#appOptions, 'integrationMethod', method)
+        folder.add(this.#appOptions, 'integrationMethod', method)
             .name('Integration Method')
             .onChange(value => {
                 this.#pendulum1.solver.method = this.#pendulum2.solver.method = value;
             });
+    }
 
-        /**
-         * Pendulums (both) initial conditions folder
-         */
+    #initPendulumParameters() {
         const flPendulum1Initial = this.#gui.addFolder('Initial Conditions');
         const initial = this.#appOptions.initialConditions;
 
@@ -201,14 +229,11 @@ export class AppGUI {
             .onChange(value => {
                 setNewValue(M2, value);
             });
+    }
 
-        /**
-         * Bottom plot type
-         */
-        const flBottomPlot = this.#gui.addFolder('Bottom Plot');
-
+    #initBottomPlotControls(folder) {
         // Draw integration sample points?
-        flBottomPlot.add(this.#appOptions, 'drawPoints')
+        folder.add(this.#appOptions, 'drawPoints')
             .name('Draw integration sample points?')
             .onChange(value => {
                 this.#plotManager.toggleDrawPoints();
@@ -223,29 +248,11 @@ export class AppGUI {
             'Bob 2 X Positions': 'bob2xpos',
             '&theta; vs. &theta;\'': 'theta1theta1prime'
         };
-        flBottomPlot.add(this.#appOptions, 'plotType', plotType)
+        folder.add(this.#appOptions, 'plotType', plotType)
             .name('Bottom Plot Type')
             .onChange(value => {
                 console.log('type change', value);
                 this.#plotManager.setActivePlotId(value);
             });
-
-        /**
-         * Colors
-         */
-        const flColors = this.#gui.addFolder('Colors (WIP) NOT WORKING');
-        // TODO: colors; make colors changeable on-the-fly (needs some refactoring)
-        const colors = {
-            'Pendulum 1 Color': '#ff0000',
-            'Pendulum 2 Color': '#00ff00',
-            'Bobs Color': '#0000ff'
-        };
-        flColors.addColor(colors, 'Pendulum 1 Color');
-        flColors.addColor(colors, 'Pendulum 2 Color');
-        flColors.addColor(colors, 'Bobs Color');
-
-        // Attach dom element to container
-        const containerElement = document.getElementById(AppGUI.CONTAINER_ELEMENT_ID);
-        containerElement?.appendChild(this.#gui.domElement);
     }
 }
