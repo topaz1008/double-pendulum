@@ -39,7 +39,7 @@ const appOptions = {
     height: HALF_HEIGHT,
 
     // General simulation parameters
-    timeScale: 1,
+    timeScale: 1 / 1.15,
     gravity: 9.81,
     stepSize: 1000,
     epsilon: EPSILON,
@@ -118,7 +118,7 @@ gui.init();
 
 function reset() {
     createPendulums();
-    plotManager.reset();
+    createPlotManager();
     time = 0;
 }
 

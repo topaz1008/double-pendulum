@@ -55,10 +55,11 @@ export class AppGUI {
             .name('Draw 2nd Pendulum');
 
         // Time scale
-        flGeneral.add(this.#appOptions, 'timeScale', 0.05, 1).step(0.01)
+        flGeneral.add(this.#appOptions, 'timeScale', 0.05, 2).step(0.01)
             .name('Time Scaling')
             .onChange(value => {
                 this.#pendulum1.timeScale = this.#pendulum2.timeScale = value;
+                console.log('timescale', value);
             });
 
         // Gravity
@@ -72,12 +73,8 @@ export class AppGUI {
         flGeneral.add(this.#appOptions, 'stepSize', 10, 2000).step(50)
             .name('Step Size (inverse)')
             .onChange(value => {
-                // Avoid divide by zero
-                if (value > Number.EPSILON) {
-                    const stepSize = 1 / value;
-                    this.#pendulum1.stepSize = this.#pendulum2.stepSize = stepSize;
-                    this.#plotManager.setStepSize(stepSize);
-                }
+                this.#pendulum1.stepSize = this.#pendulum2.stepSize = value;
+                this.#plotManager.setStepSize(value);
             });
 
         // Integration method
@@ -103,8 +100,11 @@ export class AppGUI {
             OMEGA_2 = 'omega2';
 
         // Helper functions
-        const resetAndPause = () => {
+        const resetAndTogglePause = () => {
+            this.#appOptions.pause();
             this.#appOptions.reset();
+        };
+        const togglePause = () => {
             this.#appOptions.pause();
         };
 
@@ -112,7 +112,7 @@ export class AppGUI {
         // Second pendulum gets EPSILON added
         const setNewAngle = (name, angle) => {
             // Force a reset
-            resetAndPause();
+            resetAndTogglePause();
             const radians = angle * TO_RADIANS;
 
             this.#pendulum1[name] = radians;
@@ -124,22 +124,16 @@ export class AppGUI {
                 this.#pendulum2[name] = radians;
             }
 
-            resetAndPause();
+            resetAndTogglePause();
         };
+
         const setNewValue = (name, value) => {
             // Force a reset
-            resetAndPause();
+            resetAndTogglePause();
             this.#pendulum1[name] = value;
             this.#pendulum2[name] = value;
 
-            resetAndPause();
-        };
-
-        // Get the onChange callback for lil-gui
-        const onChange = (name) => {
-            return (value) => {
-                setNewAngle(name, value);
-            };
+            resetAndTogglePause();
         };
 
         // Theta 1

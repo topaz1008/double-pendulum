@@ -181,8 +181,8 @@ export class Plotter {
     /**
      * Sets the plot step size
      */
-    setStepSize(stepSize) {
-        this.#rtPlot.setStepSize(stepSize);
+    setStepSize(inverseStepSize) {
+        this.#rtPlot.setStepSize(inverseStepSize);
     }
 
     /**

@@ -33,6 +33,7 @@ export class DoublePendulum {
     static BOB_SCALE = 10;
 
     #timeScale;
+    #stepSize;
 
     /**
      * A Double pendulum simulation.
@@ -48,7 +49,7 @@ export class DoublePendulum {
 
         options = Object.assign(DEFAULT_OPTIONS, options || {});
 
-        this.stepSize = 1 / options.stepSize;
+        this.stepSize = options.stepSize;
 
         const equations = this.#equations.bind(this); // Oh javascript
         this.solver = new NDSolve(this.y, equations, this.stepSize, NDSolve.METHOD_RK4);
@@ -89,6 +90,16 @@ export class DoublePendulum {
 
     set timeScale(value) {
         this.timeScaleIterations = this.#calcTimeScaleIteration(value);
+    }
+
+    get stepSize() {
+        return this.#stepSize;
+    }
+
+    set stepSize(inverseStepSize) {
+        if (inverseStepSize > Number.EPSILON) {
+            this.#stepSize = 1 / inverseStepSize;
+        }
     }
 
     // set integrationMethod(value) {
@@ -184,7 +195,7 @@ export class DoublePendulum {
             const p1 = this.path[i + 1];
 
             const t = 1 - (i / pathLength);
-            const c = this.pathColor.interpolate(t, this.backgroundColor);
+            const c = this.pathColor.interpolate(t, this.backgroundColor, true);
 
             this.context.strokeStyle = c.toString();
             this.context.beginPath();
