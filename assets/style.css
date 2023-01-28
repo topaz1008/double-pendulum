@@ -94,9 +94,13 @@ label[for=draw-points] {
 
 #plot-container {
     text-align: center;
+    border: 1px white solid;
 }
 
-#main-container {}
+#main-container {
+    margin-bottom: 30px;
+    border: 1px white solid;
+}
 
 .t1008-grid {
     max-width: var(--max-width);

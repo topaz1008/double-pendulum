@@ -9,7 +9,7 @@ import { NDSolveMethod } from './ndsolve.js';
 
 // General constants
 const VIEW_WIDTH = 1024,
-    VIEW_HEIGHT = 600,
+    VIEW_HEIGHT = 768,
     FPS = 60,
     HALF_WIDTH = VIEW_WIDTH / 2,
     HALF_HEIGHT = VIEW_HEIGHT / 2;

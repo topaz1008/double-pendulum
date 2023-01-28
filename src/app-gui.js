@@ -47,7 +47,7 @@ export class AppGUI {
         /**
          * General parameters folder
          */
-        flGeneral.add(this.#appOptions, 'pause').name('Pause');
+        flGeneral.add(this.#appOptions, 'pause').name('Pause/Un-pause');
         flGeneral.add(this.#appOptions, 'reset').name('Reset');
 
         // Draw 2nd pendulum?
