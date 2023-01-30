@@ -1,5 +1,5 @@
 import { Problem } from './problem.js';
-import { NDSolve } from '../src/ndsolve.js';
+import { NDSolve, NDSolveMethod } from '../src/ndsolve.js';
 import { Plot } from './plot.js';
 
 const VIEW_WIDTH = 1024,
@@ -37,7 +37,7 @@ function doPlot(problem, mode) {
     const context = createCanvas();
 
     // Solve and plot the results
-    const solver = new NDSolve(y, problem.f, STEP_SIZE, NDSolve.METHOD_RK4);
+    const solver = new NDSolve(y, problem.f, STEP_SIZE, NDSolveMethod.METHOD_RK4);
     plot = new Plot(context, plotOptions);
 
     plot.mode = mode || problem.plotMode;
